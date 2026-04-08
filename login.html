@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acesso Â· SAD BH</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#2e7d4f;--green-mid:#3da06a;--green-light:#e8f5ee;--green-border:#b6dfc8;
+  --border:#e4e8ef;--border2:#d0d7e3;--text:#1b2438;--muted:#6b7a96;--hint:#a0abbe;
+  --red:#c0392b;--red-light:#fdecea;--red-border:#f5b8b2;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:#f4f6f9;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.logo-wrap{text-align:center;margin-bottom:32px}
+.logo-icon{width:56px;height:56px;background:var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.logo-title{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:28px;width:100%;max-width:380px}
+.card-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:24px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;background:#fff;border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text);font-family:var(--font);outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(46,125,79,.08)}
+.field input::placeholder{color:var(--hint)}
+.btn{width:100%;background:var(--green);border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--font);margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.btn:hover{background:var(--green-mid)}
+.btn:disabled{background:var(--hint);cursor:not-allowed}
+.erro{background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--red);margin-bottom:14px;display:none}
+.modulos{margin-top:20px}
+.modulos-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:10px}
+.modulo-btn{width:100%;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;font-family:var(--font);text-align:left;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:all .12s}
+.modulo-btn:hover{background:var(--green-light);border-color:var(--green-border)}
+.modulo-btn svg{flex-shrink:0}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.versao{font-size:11px;color:var(--hint);text-align:center;margin-top:20px}
+</style>
+</head>
+<body>
+
+<div class="logo-wrap">
+  <div class="logo-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/>
+      <path d="M3 9h18" stroke="#fff" stroke-width="1.8"/>
+      <path d="M8 2v4M16 2v4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M7 14h4M7 17h6" stroke="rgba(255,255,255,.6)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="logo-title">Cobertura de Escalas</div>
+  <div class="logo-sub">SAD BH Â· Ãrea do gestor</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Acesso restrito</div>
+  <div class="card-sub">Digite sua senha para continuar</div>
+
+  <div class="erro" id="erro">Senha incorreta. Tente novamente.</div>
+
+  <div class="field">
+    <label>Senha</label>
+    <input type="password" id="senha" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" onkeydown="if(event.key==='Enter')entrar()">
+  </div>
+
+<button class="btn" id="btn-entrar" onclick="entrar()">
+    <span id="btn-txt">Entrar</span>
+  </button>
+
+  <div id="modulos-wrap" style="display:none">
+    <div class="modulos">
+      <div class="modulos-label">Ir para</div>
+      <button class="modulo-btn" onclick="irPara('frontend_integracao')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#2e7d4f" stroke-width="1.8"/><path d="M3 9h18M9 3v18" stroke="#2e7d4f" stroke-width="1.8"/></svg>
+        Painel de cobertura
+      </button>
+      <button class="modulo-btn" onclick="irPara('registro_ausencias')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#2e7d4f" stroke-width="1.8"/><path d="M8 2v4M16 2v4" stroke="#2e7d4f" stroke-width="1.8" stroke-linecap="round"/><path d="M8 12h8M8 16h5" stroke="#2e7d4f" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Registrar aus&#234;ncias
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="versao">v1.0 Â· 2025</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxmcYh6y_pp5e_VyfHXpA74cS6hU0xyIK87tFPxmy0lI2hRZ0i6ZrExfgM8yceilpn_/exec';
+let destino = new URLSearchParams(window.location.search).get('dest') || 'frontend_integracao';
+
+async function entrar() {
+  const senha = document.getElementById('senha').value;
+  if (!senha) return;
+
+  const btn = document.getElementById('btn-entrar');
+  const txt = document.getElementById('btn-txt');
+  btn.disabled = true;
+  txt.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const url = new URL(API_URL);
+    url.searchParams.set('acao', 'gestor');
+    url.searchParams.set('senha', senha);
+    const r = await fetch(url.toString());
+    const data = await r.json();
+
+    if (data.ok) {
+      sessionStorage.setItem('sad_senha', senha);
+      document.getElementById('erro').style.display = 'none';
+      document.getElementById('modulos-wrap').style.display = 'block';
+      btn.style.display = 'none';
+      document.getElementById('senha').disabled = true;
+      // Redireciona automaticamente se veio de um destino especÃ­fico
+      if (new URLSearchParams(window.location.search).get('dest')) {
+        window.location.href = '?p=' + destino;
+      }
+    } else {
+      document.getElementById('erro').style.display = 'block';
+      document.getElementById('senha').value = '';
+      document.getElementById('senha').focus();
+    }
+  } catch(e) {
+    document.getElementById('erro').textContent = 'Erro de comunicaÃ§Ã£o. Verifique a conexÃ£o.';
+    document.getElementById('erro').style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    txt.textContent = 'Entrar';
+  }
+}
+
+function irPara(pagina) {
+  google.script.run
+    .withSuccessHandler(function(url) {
+      window.top.location.href = url + '?p=' + pagina;
+    })
+    .getScriptUrl();
+}
+
+// Foca no campo de senha ao carregar
+window.onload = () => document.getElementById('senha').focus();
+</script>
+
+</body>
+</html>
