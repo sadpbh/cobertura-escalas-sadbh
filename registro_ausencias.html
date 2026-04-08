@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Aus&ecirc;ncias &middot; SAD BH</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6f9;--card:#fff;--border:#e4e8ef;--border2:#d0d7e3;
+  --text:#1b2438;--muted:#6b7a96;--hint:#a0abbe;
+  --green:#2e7d4f;--green-mid:#3da06a;--green-light:#e8f5ee;--green-border:#b6dfc8;
+  --orange:#d95f1a;--orange-light:#fdf0e8;--orange-border:#f5c49a;
+  --red:#c0392b;--red-light:#fdecea;--red-border:#f5b8b2;
+  --blue:#1a5fa6;--blue-light:#e8f0fb;--blue-border:#aac5ef;
+  --purple:#6d3aad;--purple-light:#f0eafb;--purple-border:#c9aef0;
+  --cyan:#0a7c8c;--cyan-light:#e6f6f8;--cyan-border:#9ad8e0;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+.app{max-width:1020px;margin:0 auto;padding:0 0 40px}
+
+.topbar{background:var(--green);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-icon{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.topbar-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.2}
+.topbar-sub{font-size:11px;color:#a8e6c0}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-user{font-size:12px;color:#a8e6c0}
+.topbar-logout{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:4px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:var(--font)}
+
+.subbar{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:44px;margin-bottom:24px}
+.nav button{background:none;border:none;border-bottom:2px solid transparent;padding:0 16px;height:44px;font-size:13px;font-family:var(--font);font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
+.nav button.active{color:var(--green);border-bottom-color:var(--green)}
+.nav button:hover:not(.active){color:var(--text)}
+
+.content{padding:0 20px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title{font-size:16px;font-weight:600;color:var(--text)}
+.page-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.card-body{padding:18px}
+.card-head-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:#fff;border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(46,125,79,.08)}
+.field input::placeholder{color:var(--hint)}
+.field textarea{resize:vertical;min-height:68px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+.tipo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.tipo-btn{padding:8px 10px;border:1px solid var(--border2);border-radius:8px;text-align:center;cursor:pointer;background:#fff;font-family:var(--font);font-size:12px;font-weight:500;color:var(--muted);transition:all .12s;line-height:1.3}
+.tipo-btn:hover:not(.sel){background:var(--bg)}
+.tipo-btn.sel.med{background:var(--blue-light);border-color:var(--blue-border);color:var(--blue)}
+.tipo-btn.sel.enf{background:var(--purple-light);border-color:var(--purple-border);color:var(--purple)}
+.tipo-btn.sel.tec{background:var(--cyan-light);border-color:var(--cyan-border);color:var(--cyan)}
+
+.periodo-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end}
+.periodo-sep{font-size:13px;color:var(--muted);padding-bottom:9px;text-align:center}
+
+.dias-gerados{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px}
+.dias-gerados-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.dias-pills{display:flex;flex-wrap:wrap;gap:6px}
+.dia-pill{background:#fff;border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:5px;cursor:pointer}
+.dia-pill.excluido{background:#f0f2f5;border-color:var(--border);color:var(--hint);text-decoration:line-through}
+.dia-pill .remove{color:var(--red);font-size:12px;line-height:1}
+
+.footer-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.btn-sec{background:#fff;border:1px solid var(--border2);border-radius:7px;padding:9px 20px;font-size:13px;color:var(--muted);cursor:pointer;font-family:var(--font);font-weight:500}
+.btn-sec:hover{background:var(--bg)}
+.btn-pri{background:var(--green);border:none;border-radius:7px;padding:9px 24px;font-size:13px;color:#fff;cursor:pointer;font-family:var(--font);font-weight:600;display:flex;align-items:center;gap:8px}
+.btn-pri:hover{background:var(--green-mid)}
+.btn-pri:disabled{background:var(--hint);cursor:not-allowed}
+.btn-danger{background:#fff;border:1px solid var(--red-border);border-radius:7px;padding:7px 14px;font-size:12px;color:var(--red);cursor:pointer;font-family:var(--font);font-weight:500}
+.btn-danger:hover{background:var(--red-light)}
+
+.alert{border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px;border-left:3px solid}
+.alert.warn{background:var(--orange-light);border-color:var(--orange);color:#8a3a0a}
+.alert.info{background:var(--blue-light);border-color:var(--blue);color:#0d3070}
+.alert.success{background:var(--green-light);border-color:var(--green);color:#1a5c35}
+.alert.err{background:var(--red-light);border-color:var(--red);color:#8b1a14}
+
+.table-wrap{overflow-x:auto;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--bg);padding:8px 12px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border)}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbfc}
+
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge.ferias{background:#fff8e6;color:#7a5a00;border:1px solid #f5d88a}
+.badge.licenca-med{background:var(--red-light);color:var(--red);border:1px solid var(--red-border)}
+.badge.vacancia{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border)}
+.badge.maternidade{background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-border)}
+.badge.outro{background:#f1efe8;color:var(--muted);border:1px solid var(--border)}
+.badge.med{background:var(--blue-light);color:var(--blue)}
+.badge.enf{background:var(--purple-light);color:var(--purple)}
+.badge.tec{background:var(--cyan-light);color:var(--cyan)}
+
+.empty{text-align:center;padding:32px;color:var(--hint);font-size:13px}
+.loading-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.2s ease-in-out infinite}
+.loading-dot:nth-child(2){animation-delay:.2s}
+.loading-dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+.divider{height:1px;background:var(--border);margin:20px 0}
+.section-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:12px}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-mini{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;border-top:3px solid var(--border)}
+.stat-mini.ok{border-top-color:var(--green)}
+.stat-mini.warn{border-top-color:var(--red)}
+.stat-mini.info{border-top-color:var(--orange)}
+.stat-mini.neu{border-top-color:var(--blue)}
+.stat-mini-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:600}
+.stat-mini-val{font-size:22px;font-weight:700;line-height:1}
+.stat-mini.ok .stat-mini-val{color:var(--green)}
+.stat-mini.warn .stat-mini-val{color:var(--red)}
+.stat-mini.info .stat-mini-val{color:var(--orange)}
+.stat-mini.neu .stat-mini-val{color:var(--blue)}
+.stat-mini-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/>
+          <path d="M3 9h18" stroke="#fff" stroke-width="1.8"/>
+          <path d="M8 2v4M16 2v4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M7 14h4M7 17h6" stroke="#a8e6c0" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="topbar-title">Cobertura de Escalas</div>
+        <div class="topbar-sub">SAD BH &middot; Gest&atilde;o de Aus&ecirc;ncias</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user">Gestor</span>
+      <button class="topbar-logout" onclick="google.script.run.withSuccessHandler(function(url){window.top.location.href=url+'?p=frontend_integracao'}).getScriptUrl()">&#8592; Painel</button>
+    </div>
+  </div>
+
+  <div class="subbar">
+    <div class="nav">
+      <button class="active" onclick="showTab('novo')">Nova aus&ecirc;ncia</button>
+      <button onclick="showTab('lista')">Aus&ecirc;ncias registradas</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- TAB: NOVA AUS&Ecirc;NCIA -->
+    <div id="tab-novo" class="tab-content active">
+
+      <div id="form-alert"></div>
+
+      <div class="cols">
+
+        <!-- COLUNA ESQUERDA: FORMUL&Aacute;RIO -->
+        <div>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Dados da aus&ecirc;ncia</div>
+                <div class="card-sub">Preencha todos os campos obrigat&oacute;rios</div>
+              </div>
+            </div>
+            <div class="card-body">
+
+              <div class="field">
+                <label>Categoria do profissional *</label>
+                <div class="tipo-grid">
+                  <button class="tipo-btn sel med" onclick="selecionarCat('medico',this)">
+                    M&eacute;dico
+                  </button>
+                  <button class="tipo-btn" onclick="selecionarCat('enfermeiro',this)">
+                    Enfermeiro
+                  </button>
+                  <button class="tipo-btn" onclick="selecionarCat('tecnico',this)">
+                    T&eacute;cnico de enf.
+                  </button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Equipe / Base *</label>
+                <select id="f-equipe">
+                  <option value="">Selecione...</option>
+                </select>
+              </div>
+
+              <div class="field" id="field-turno">
+                <label>Turno *</label>
+                <select id="f-turno">
+                  <option value="MANHA">Manh&atilde;</option>
+                  <option value="TARDE">Tarde</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Profissional ausente</label>
+                <input type="text" id="f-profissional" placeholder="Nome do profissional (opcional)">
+              </div>
+
+              <div class="field">
+                <label>Motivo da aus&ecirc;ncia *</label>
+                <select id="f-motivo">
+                  <option value="">Selecione...</option>
+                  <option value="F&eacute;rias">F&eacute;rias</option>
+                  <option value="Licen&ccedil;a m&eacute;dica">Licen&ccedil;a m&eacute;dica</option>
+                  <option value="Licen&ccedil;a maternidade">Licen&ccedil;a maternidade</option>
+                  <option value="Licen&ccedil;a paternidade">Licen&ccedil;a paternidade</option>
+                  <option value="Vac&acirc;ncia do cargo">Vac&acirc;ncia do cargo</option>
+                  <option value="Afastamento INSS">Afastamento INSS</option>
+                  <option value="Falta n&atilde;o justificada">Falta n&atilde;o justificada</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Observa&ccedil;&otilde;es</label>
+                <textarea id="f-obs" placeholder="Informa&ccedil;&otilde;es adicionais relevantes..."></textarea>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUNA DIREITA: PER&Iacute;ODO + RESUMO -->
+        <div>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Per&iacute;odo de aus&ecirc;ncia</div>
+                <div class="card-sub">Pode ser um dia, um per&iacute;odo ou dias avulsos</div>
+              </div>
+            </div>
+            <div class="card-body">
+
+              <div class="field">
+                <label>Tipo de per&iacute;odo</label>
+                <div style="display:flex;gap:8px;margin-top:4px">
+                  <button class="tipo-btn sel med" style="flex:1" onclick="selecionarPeriodo('periodo',this)" id="btn-periodo">Per&iacute;odo cont&iacute;nuo</button>
+                  <button class="tipo-btn" style="flex:1" onclick="selecionarPeriodo('avulso',this)" id="btn-avulso">Dias avulsos</button>
+                </div>
+              </div>
+
+              <div id="block-periodo">
+                <div class="periodo-row">
+                  <div class="field" style="margin:0">
+                    <label>Data in&iacute;cio *</label>
+                    <input type="date" id="f-inicio" onchange="calcularDias()">
+                  </div>
+                  <div class="periodo-sep">at&eacute;</div>
+                  <div class="field" style="margin:0">
+                    <label>Data fim *</label>
+                    <input type="date" id="f-fim" onchange="calcularDias()">
+                  </div>
+                </div>
+              </div>
+
+              <div id="block-avulso" style="display:none">
+                <div class="field">
+                  <label>Adicionar data</label>
+                  <div style="display:flex;gap:8px">
+                    <input type="date" id="f-avulso-data" style="flex:1">
+                    <button class="btn-sec" onclick="adicionarDiaAvulso()" style="white-space:nowrap;padding:9px 14px">+ Adicionar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="dias-gerados" style="display:none">
+                <div class="dias-gerados">
+                  <div class="dias-gerados-label">Dias que ser&atilde;o registrados <span id="dias-count" style="color:var(--green)"></span></div>
+                  <div class="dias-pills" id="dias-pills"></div>
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:6px">Clique em um dia para remov&ecirc;-lo da lista</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card" id="resumo-card" style="display:none">
+            <div class="card-head">
+              <div class="card-title">Resumo</div>
+            </div>
+            <div class="card-body" id="resumo-body" style="font-size:13px;line-height:1.9">
+            </div>
+          </div>
+
+          <div class="footer-actions">
+            <button class="btn-sec" onclick="limparForm()">Limpar</button>
+            <button class="btn-pri" id="btn-salvar" onclick="salvar()" disabled>
+              <span id="btn-salvar-txt">Registrar aus&ecirc;ncia</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: LISTA -->
+    <div id="tab-lista" class="tab-content">
+
+      <div class="stat-row" id="stats-lista"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Aus&ecirc;ncias registradas</div>
+            <div class="card-sub">M&eacute;dicos, enfermeiros e t&eacute;cnicos</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <select id="filtro-cat" onchange="filtrarLista()" style="background:#fff;border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:12px;color:var(--text);font-family:var(--font);outline:none">
+              <option value="todos">Todas as categorias</option>
+              <option value="medico">M&eacute;dicos</option>
+              <option value="enfermeiro">Enfermeiros</option>
+              <option value="tecnico">T&eacute;cnicos</option>
+            </select>
+            <select id="filtro-motivo" onchange="filtrarLista()" style="background:#fff;border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:12px;color:var(--text);font-family:var(--font);outline:none">
+              <option value="todos">Todos os motivos</option>
+              <option value="F&eacute;rias">F&eacute;rias</option>
+              <option value="Licen&ccedil;a m&eacute;dica">Licen&ccedil;a m&eacute;dica</option>
+              <option value="Vac&acirc;ncia do cargo">Vac&acirc;ncia do cargo</option>
+              <option value="Outro">Outros</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Equipe</th>
+                  <th>Categoria</th>
+                  <th>Turno</th>
+                  <th>Profissional</th>
+                  <th>Motivo</th>
+                  <th>Obs</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="lista-tbody">
+                <tr><td colspan="8" class="empty">Carregando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxmcYh6y_pp5e_VyfHXpA74cS6hU0xyIK87tFPxmy0lI2hRZ0i6ZrExfgM8yceilpn_/exec';
+
+let catAtual = 'medico';
+let tipoPeriodo = 'periodo';
+let diasSelecionados = [];
+let todasEquipes = [];
+let listaAusencias = [];
+
+const MOTIVO_CLASS = {
+  'F&eacute;rias': 'ferias',
+  'Licen&ccedil;a m&eacute;dica': 'licenca-med',
+  'Vac&acirc;ncia do cargo': 'vacancia',
+  'Licen&ccedil;a maternidade': 'maternidade',
+  'Licen&ccedil;a paternidade': 'maternidade',
+};
+
+// =============================================
+// INIT
+// =============================================
+async function init() {
+  await carregarEquipes();
+  await carregarLista();
+  // Seta data de hoje como padr&atilde;o
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('f-inicio').value = hoje;
+  document.getElementById('f-fim').value = hoje;
+  calcularDias();
+}
+
+async function carregarEquipes() {
+  try {
+    const r = await api({ acao: 'equipes_lista' });
+    if (r.ok) todasEquipes = r.equipes;
+  } catch(e) {
+    // Fallback com equipes fixas se API ainda n&atilde;o tiver esse endpoint
+    todasEquipes = [
+      'Barreiro 1','Barreiro 2','Barreiro 3 &ndash; Paliativos',
+      'Centro Sul 1','Centro Sul 2','HOB 1','HOB 2 &ndash; Prolongados',
+      'Leste 1','Leste 2','Nordeste 1','Nordeste 3','Noroeste',
+      'Norte 1','Norte 2','Oeste 1','Oeste 2','Pampulha 1',
+      'Pampulha 2','Pedi&aacute;trica','Venda Nova 2','SAD BH'
+    ];
+  }
+  popularSelectEquipes();
+}
+
+function popularSelectEquipes() {
+  const sel = document.getElementById('f-equipe');
+  sel.innerHTML = '<option value="">Selecione...</option>';
+  todasEquipes.forEach(eq => {
+    const opt = document.createElement('option');
+    opt.value = eq;
+    opt.textContent = eq;
+    sel.appendChild(opt);
+  });
+}
+
+async function carregarLista() {
+  try {
+    const r = await api({ acao: 'listar_ausencias' });
+    if (r.ok) {
+      listaAusencias = r.ausencias || [];
+      renderLista();
+      renderStats();
+    }
+  } catch(e) {
+    document.getElementById('lista-tbody').innerHTML = '<tr><td colspan="8" class="empty">Erro ao carregar aus&ecirc;ncias.</td></tr>';
+  }
+}
+
+// =============================================
+// FORMUL&Aacute;RIO
+// =============================================
+function selecionarCat(cat, btn) {
+  catAtual = cat;
+  document.querySelectorAll('.tipo-grid .tipo-btn').forEach(b => {
+    b.classList.remove('sel','med','enf','tec');
+  });
+  btn.classList.add('sel', cat === 'medico' ? 'med' : cat === 'enfermeiro' ? 'enf' : 'tec');
+  // T&eacute;cnico n&atilde;o tem turno (cobre base inteira)
+  document.getElementById('field-turno').style.display = cat === 'tecnico' ? 'none' : 'block';
+  atualizarResumo();
+  validarForm();
+}
+
+function selecionarPeriodo(tipo, btn) {
+  tipoPeriodo = tipo;
+  document.querySelectorAll('.tipo-btn').forEach(b => {
+    if (b.id === 'btn-periodo' || b.id === 'btn-avulso') {
+      b.classList.remove('sel','med','enf','tec');
+    }
+  });
+  btn.classList.add('sel','med');
+  document.getElementById('block-periodo').style.display = tipo === 'periodo' ? 'block' : 'none';
+  document.getElementById('block-avulso').style.display = tipo === 'avulso' ? 'block' : 'none';
+  if (tipo === 'avulso') {
+    diasSelecionados = [];
+    renderDiasPills();
+  } else {
+    calcularDias();
+  }
+}
+
+function calcularDias() {
+  if (tipoPeriodo !== 'periodo') return;
+  const ini = document.getElementById('f-inicio').value;
+  const fim = document.getElementById('f-fim').value;
+  if (!ini || !fim) return;
+
+  const start = new Date(ini + 'T12:00:00');
+  const end = new Date(fim + 'T12:00:00');
+  if (end < start) {
+    document.getElementById('f-fim').value = ini;
+    return calcularDias();
+  }
+
+  diasSelecionados = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    const dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) { // Pula fins de semana
+      diasSelecionados.push(cur.toISOString().split('T')[0]);
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  renderDiasPills();
+  atualizarResumo();
+  validarForm();
+}
+
+function adicionarDiaAvulso() {
+  const v = document.getElementById('f-avulso-data').value;
+  if (!v) return;
+  if (diasSelecionados.includes(v)) return;
+  diasSelecionados.push(v);
+  diasSelecionados.sort();
+  renderDiasPills();
+  atualizarResumo();
+  validarForm();
+  document.getElementById('f-avulso-data').value = '';
+}
+
+function removerDia(d) {
+  diasSelecionados = diasSelecionados.filter(x => x !== d);
+  renderDiasPills();
+  atualizarResumo();
+  validarForm();
+}
+
+function renderDiasPills() {
+  const wrap = document.getElementById('dias-gerados');
+  const pills = document.getElementById('dias-pills');
+  const count = document.getElementById('dias-count');
+
+  if (!diasSelecionados.length) {
+    wrap.style.display = 'none';
+    return;
+  }
+
+  wrap.style.display = 'block';
+  count.textContent = `(${diasSelecionados.length} dia${diasSelecionados.length > 1 ? 's' : ''})`;
+
+  const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','S&aacute;b'];
+  pills.innerHTML = diasSelecionados.map(d => {
+    const dt = new Date(d + 'T12:00:00');
+    const label = `${DIAS[dt.getDay()]} ${dt.getDate().toString().padStart(2,'0')}/${(dt.getMonth()+1).toString().padStart(2,'0')}`;
+    return `<div class="dia-pill" onclick="removerDia('${d}')">
+      ${label}
+      <span class="remove">×</span>
+    </div>`;
+  }).join('');
+}
+
+function atualizarResumo() {
+  const equipe = document.getElementById('f-equipe').value;
+  const motivo = document.getElementById('f-motivo').value;
+  const prof = document.getElementById('f-profissional').value;
+  const turno = document.getElementById('f-turno').value;
+
+  const card = document.getElementById('resumo-card');
+  const body = document.getElementById('resumo-body');
+
+  if (!equipe && !diasSelecionados.length) {
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = 'block';
+  const catLabel = catAtual === 'medico' ? 'M&eacute;dico' : catAtual === 'enfermeiro' ? 'Enfermeiro' : 'T&eacute;cnico de enf.';
+  const turnoLabel = catAtual === 'tecnico' ? 'Base inteira' : turno === 'MANHA' ? 'Manh&atilde;' : 'Tarde';
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px">
+      <span style="color:var(--muted)">Categoria</span><span><strong>${catLabel}</strong></span>
+      <span style="color:var(--muted)">Equipe</span><span><strong>${equipe || '&mdash;'}</strong></span>
+      <span style="color:var(--muted)">Turno</span><span>${turnoLabel}</span>
+      <span style="color:var(--muted)">Profissional</span><span>${prof || 'N&atilde;o informado'}</span>
+      <span style="color:var(--muted)">Motivo</span><span>${motivo || '&mdash;'}</span>
+      <span style="color:var(--muted)">Dias</span><span style="color:var(--green);font-weight:600">${diasSelecionados.length} dia(s) &uacute;til(eis)</span>
+    </div>
+    ${diasSelecionados.length > 0 ? `<div style="margin-top:8px;font-size:11px;color:var(--muted)">Isso criar&aacute; ${diasSelecionados.length} linha(s) em escala_base${catAtual === 'tecnico' ? ' / ausencias_tecnicos' : ''}.</div>` : ''}
+  `;
+}
+
+function validarForm() {
+  const equipe = document.getElementById('f-equipe').value;
+  const motivo = document.getElementById('f-motivo').value;
+  const ok = equipe && motivo && diasSelecionados.length > 0;
+  document.getElementById('btn-salvar').disabled = !ok;
+}
+
+async function salvar() {
+  const equipe = document.getElementById('f-equipe').value;
+  const turno = document.getElementById('f-turno').value;
+  const profissional = document.getElementById('f-profissional').value;
+  const motivo = document.getElementById('f-motivo').value;
+  const obs = document.getElementById('f-obs').value;
+
+  if (!equipe || !motivo || !diasSelecionados.length) return;
+
+  const btn = document.getElementById('btn-salvar');
+  const txt = document.getElementById('btn-salvar-txt');
+  btn.disabled = true;
+  txt.innerHTML = '<span class="spinner"></span> Salvando...';
+
+  try {
+    const r = await apiPost({
+      acao: 'registrar_ausencia_lote',
+      categoria: catAtual,
+      equipe,
+      turno,
+      profissional,
+      motivo,
+      obs,
+      dias: diasSelecionados
+    });
+
+    if (r.ok) {
+      mostrarAlert('success', `${r.gravados} aus&ecirc;ncia(s) registrada(s) com sucesso. A escala ser&aacute; atualizada na pr&oacute;xima gera&ccedil;&atilde;o.`);
+      limparForm();
+      await carregarLista();
+      showTab('lista');
+    } else {
+      mostrarAlert('err', 'Erro ao salvar: ' + r.erro);
+    }
+  } catch(e) {
+    mostrarAlert('err', 'Erro de comunica&ccedil;&atilde;o: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    txt.textContent = 'Registrar aus&ecirc;ncia';
+    validarForm();
+  }
+}
+
+function limparForm() {
+  document.getElementById('f-equipe').value = '';
+  document.getElementById('f-profissional').value = '';
+  document.getElementById('f-motivo').value = '';
+  document.getElementById('f-obs').value = '';
+  diasSelecionados = [];
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('f-inicio').value = hoje;
+  document.getElementById('f-fim').value = hoje;
+  renderDiasPills();
+  document.getElementById('resumo-card').style.display = 'none';
+  document.getElementById('form-alert').innerHTML = '';
+  validarForm();
+}
+
+function mostrarAlert(tipo, msg) {
+  const icons = {
+    success: '✓',
+    err: '✕',
+    warn: '⚠',
+    info: 'i'
+  };
+  document.getElementById('form-alert').innerHTML = `
+    <div class="alert ${tipo}">
+      <strong>${icons[tipo]}</strong> ${msg}
+    </div>
+  `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =============================================
+// LISTA
+// =============================================
+function renderStats() {
+  const total = listaAusencias.length;
+  const medicos = listaAusencias.filter(a => a.categoria === 'medico').length;
+  const enfermeiros = listaAusencias.filter(a => a.categoria === 'enfermeiro').length;
+  const tecnicos = listaAusencias.filter(a => a.categoria === 'tecnico').length;
+
+  document.getElementById('stats-lista').innerHTML = `
+    <div class="stat-mini neu"><div class="stat-mini-lbl">Total registros</div><div class="stat-mini-val">${total}</div><div class="stat-mini-sub">esta semana/m&ecirc;s</div></div>
+    <div class="stat-mini ok"><div class="stat-mini-lbl">M&eacute;dicos</div><div class="stat-mini-val">${medicos}</div><div class="stat-mini-sub">aus&ecirc;ncias</div></div>
+    <div class="stat-mini info"><div class="stat-mini-lbl">Enfermeiros</div><div class="stat-mini-val">${enfermeiros}</div><div class="stat-mini-sub">aus&ecirc;ncias</div></div>
+    <div class="stat-mini warn"><div class="stat-mini-lbl">T&eacute;cnicos</div><div class="stat-mini-val">${tecnicos}</div><div class="stat-mini-sub">aus&ecirc;ncias</div></div>
+  `;
+}
+
+function filtrarLista() {
+  const cat = document.getElementById('filtro-cat').value;
+  const motivo = document.getElementById('filtro-motivo').value;
+  let lista = listaAusencias.filter(a => {
+    if (cat !== 'todos' && a.categoria !== cat) return false;
+    if (motivo !== 'todos' && !a.motivo.includes(motivo)) return false;
+    return true;
+  });
+  renderListaFiltrada(lista);
+}
+
+function renderLista() {
+  filtrarLista();
+}
+
+function renderListaFiltrada(lista) {
+  const tbody = document.getElementById('lista-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhuma aus&ecirc;ncia encontrada.</td></tr>';
+    return;
+  }
+
+  const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','S&aacute;b'];
+
+  tbody.innerHTML = lista.map((a, idx) => {
+    const dt = new Date(a.data + 'T12:00:00');
+    const dataFmt = `${DIAS[dt.getDay()]} ${dt.getDate().toString().padStart(2,'0')}/${(dt.getMonth()+1).toString().padStart(2,'0')}`;
+    const motClass = MOTIVO_CLASS[a.motivo] || 'outro';
+    const catClass = a.categoria === 'medico' ? 'med' : a.categoria === 'enfermeiro' ? 'enf' : 'tec';
+    const catLabel = a.categoria === 'medico' ? 'M&eacute;dico' : a.categoria === 'enfermeiro' ? 'Enfermeiro' : 'T&eacute;cnico';
+    const turnoLabel = a.categoria === 'tecnico' ? '&mdash;' : a.turno === 'MANHA' ? 'Manh&atilde;' : 'Tarde';
+    return `<tr>
+      <td style="font-weight:500;white-space:nowrap">${dataFmt}</td>
+      <td>${a.equipe}</td>
+      <td><span class="badge ${catClass}">${catLabel}</span></td>
+      <td>${turnoLabel}</td>
+      <td style="color:var(--muted)">${a.profissional || '&mdash;'}</td>
+      <td><span class="badge ${motClass}">${a.motivo || '&mdash;'}</span></td>
+      <td style="color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.obs || '&mdash;'}</td>
+      <td><button class="btn-danger" onclick="excluirAusencia(${a.row})">Excluir</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function excluirAusencia(row) {
+  if (!confirm('Excluir esta aus&ecirc;ncia? A escala precisar&aacute; ser regerada.')) return;
+  try {
+    const r = await apiPost({ acao: 'excluir_ausencia', row });
+    if (r.ok) {
+      await carregarLista();
+    } else {
+      alert('Erro: ' + r.erro);
+    }
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+// =============================================
+// API
+// =============================================
+function api(params) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      .chamarAPI(params);
+  });
+}
+ 
+function apiPost(body) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      .chamarAPIPost(body);
+  });
+}
+
+// =============================================
+// TABS
+// =============================================
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav button').forEach((b, i) => {
+    b.classList.toggle('active', ['novo','lista'][i] === tab);
+  });
+}
+
+// Escuta mudan&ccedil;as nos campos para atualizar resumo e valida&ccedil;&atilde;o
+document.addEventListener('DOMContentLoaded', () => {
+  ['f-equipe','f-turno','f-motivo','f-profissional'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      atualizarResumo();
+      validarForm();
+    });
+  });
+  init();
+});
+</script>
+
+</body>
+</html>
