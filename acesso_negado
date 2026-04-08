@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acesso negado &middot; SAD BH</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f4f6f9;color:#1b2438;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.icon{width:64px;height:64px;background:#fdecea;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid #f5b8b2}
+.title{font-size:20px;font-weight:700;color:#c0392b;margin-bottom:8px;text-align:center}
+.sub{font-size:14px;color:#6b7a96;margin-bottom:6px;text-align:center;line-height:1.6}
+.email{font-size:13px;color:#a0abbe;text-align:center;margin-bottom:28px;background:#fff;border:1px solid #e4e8ef;border-radius:8px;padding:8px 16px;display:inline-block}
+.card{background:#fff;border:1px solid #e4e8ef;border-radius:14px;padding:32px;width:100%;max-width:400px;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="#c0392b" stroke-width="1.8"/>
+      <path d="M15 9L9 15M9 9l6 6" stroke="#c0392b" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="title">Acesso n&#227;o autorizado</div>
+  <div class="sub">Seu e-mail n&#227;o est&#225; na lista de usu&#225;rios permitidos.<br>Entre em contato com o gestor do SAD BH.</div>
+  <div class="email" id="email-display"></div>
+  <div class="sub" style="font-size:12px;color:#a0abbe">Cobertura de Escalas &middot; SAD BH</div>
+</div>
+<script>
+  fetch('?acao=meu_acesso').then(r=>r.json()).then(d=>{
+    if(d.email) document.getElementById('email-display').textContent = d.email;
+  }).catch(()=>{});
+</script>
+</body>
+</html>
