@@ -1,0 +1,1 @@
+# sistema_cobertura_escala
