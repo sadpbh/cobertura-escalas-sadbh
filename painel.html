@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cobertura de Escalas &middot; SAD BH</title>
+<script src="config.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -23,13 +24,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .topbar{background:var(--green);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px}
 .topbar-left{display:flex;align-items:center;gap:12px}
 .topbar-icon{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:7px;display:flex;align-items:center;justify-content:center}
-.topbar-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.2}
+.topbar-title{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px}
 .topbar-sub{font-size:11px;color:#a8e6c0}
 .topbar-semana{display:flex;align-items:center;gap:8px}
-.topbar-semana span{font-size:11px;color:#a8e6c0}
-.topbar-semana strong{font-size:13px;font-weight:600;color:#fff}
 .topbar-semana button{width:24px;height:24px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);border-radius:5px;cursor:pointer;font-size:12px;color:#fff}
 .topbar-semana button:hover{background:rgba(255,255,255,.22)}
+#semana-picker{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:3px 8px;font-size:12px;color:#fff;font-family:inherit;cursor:pointer;outline:none}
+.menu-gestor{display:none;align-items:center;gap:6px}
+.menu-gestor button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit}
+.menu-gestor button:hover{background:rgba(255,255,255,.22)}
 .subbar{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:44px;margin-bottom:20px}
 .nav button{background:none;border:none;border-bottom:2px solid transparent;padding:0 16px;height:44px;font-size:13px;font-family:var(--font);font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
 .nav button.active{color:var(--green);border-bottom-color:var(--green)}
@@ -62,9 +65,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .slot.apo{background:var(--orange-light);border-color:var(--orange-border);color:#8a3a0a}
 .slot.sem{background:var(--red-light);border-color:var(--red-border);color:#8b1a14}
 .slot.ext{background:var(--purple-light);border-color:var(--purple-border);color:#4a1f85}
-.slot.tec-ok{background:var(--cyan-light);border-color:var(--cyan-border);color:#065a68}
-.slot.tec-sem{background:var(--red-light);border-color:var(--red-border);color:#8b1a14}
-.slot.tec-ext{background:var(--purple-light);border-color:var(--purple-border);color:#4a1f85}
 .slot.vaga{background:#f8f9fb;border-color:var(--border);color:var(--hint)}
 .slot-tipo{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;opacity:.75}
 .slot-nome{font-weight:600;line-height:1.2;margin-top:2px}
@@ -93,16 +93,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .fer-slot-turno{font-size:10px;opacity:.65;margin-top:1px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
 .stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid var(--border)}
-.stat.ok{border-top-color:var(--green)}
-.stat.warn{border-top-color:var(--red)}
-.stat.info{border-top-color:var(--orange)}
-.stat.neutral{border-top-color:var(--blue)}
+.stat.ok{border-top-color:var(--green)}.stat.warn{border-top-color:var(--red)}
+.stat.info{border-top-color:var(--orange)}.stat.neutral{border-top-color:var(--blue)}
 .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600}
 .stat-val{font-size:26px;font-weight:700;line-height:1}
-.stat.ok .stat-val{color:var(--green)}
-.stat.warn .stat-val{color:var(--red)}
-.stat.info .stat-val{color:var(--orange)}
-.stat.neutral .stat-val{color:var(--blue)}
+.stat.ok .stat-val{color:var(--green)}.stat.warn .stat-val{color:var(--red)}
+.stat.info .stat-val{color:var(--orange)}.stat.neutral .stat-val{color:var(--blue)}
 .stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
 .cat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .cat-card{border-radius:10px;padding:14px;border:1px solid}
@@ -110,9 +106,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .cat-card.enf{background:var(--purple-light);border-color:var(--purple-border)}
 .cat-card.tec{background:var(--cyan-light);border-color:var(--cyan-border)}
 .cat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.cat-card.med .cat-lbl{color:var(--blue)}
-.cat-card.enf .cat-lbl{color:var(--purple)}
-.cat-card.tec .cat-lbl{color:var(--cyan)}
+.cat-card.med .cat-lbl{color:var(--blue)}.cat-card.enf .cat-lbl{color:var(--purple)}.cat-card.tec .cat-lbl{color:var(--cyan)}
 .cat-line{font-size:12px;color:var(--text);line-height:1.9}
 .nao-cob-item{display:flex;align-items:center;gap:12px;background:var(--red-light);border:1px solid var(--red-border);border-left:3px solid var(--red);border-radius:8px;padding:10px 14px;margin-bottom:6px}
 .nao-cob-eq{font-weight:700;font-size:13px}
@@ -120,61 +114,39 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .nao-cob-btn{background:#fff;border:1px solid var(--red-border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--red);cursor:pointer;font-family:var(--font);font-weight:600;white-space:nowrap}
 .divider{height:1px;background:var(--border);margin:16px 0}
 .section-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px}
-.lock-screen{text-align:center;padding:56px 24px}
-.lock-icon{width:52px;height:52px;border-radius:50%;background:var(--green-light);border:2px solid var(--green-border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.lock-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
-.lock-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
-.lock-form{display:flex;gap:8px;justify-content:center}
-.lock-form input{background:#fff;border:1px solid var(--border2);border-radius:7px;padding:9px 14px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;width:200px}
-.lock-form input:focus{border-color:var(--green-mid)}
-.lock-form button{background:var(--green);border:none;border-radius:7px;padding:9px 20px;font-size:13px;color:#fff;cursor:pointer;font-family:var(--font);font-weight:600}
 .empty{text-align:center;padding:32px;color:var(--hint);font-size:13px}
 .erro{background:var(--red-light);border:1px solid var(--red-border);border-radius:8px;padding:12px 16px;color:var(--red);font-size:13px;margin-bottom:16px}
 </style>
 </head>
 <body>
-
 <div class="app">
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="topbar-icon">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/>
-        <path d="M3 9h18" stroke="#fff" stroke-width="1.8"/>
-        <path d="M8 2v4M16 2v4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-        <path d="M7 14h4M7 17h6" stroke="#a8e6c0" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/>
+          <path d="M3 9h18" stroke="#fff" stroke-width="1.8"/>
+          <path d="M8 2v4M16 2v4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M7 14h4M7 17h6" stroke="#a8e6c0" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="topbar-title">Cobertura de Escalas</div>
+        <div class="topbar-sub">SAD BH</div>
+      </div>
     </div>
-    <div>
-      <div class="topbar-title">Cobertura de Escalas</div>
-      <div class="topbar-sub">SAD BH</div>
+    <div class="topbar-semana">
+      <button onclick="navegarSemana(-1)">&#8249;</button>
+      <input type="week" id="semana-picker" onchange="selecionarSemana(this.value)">
+      <button onclick="navegarSemana(1)">&#8250;</button>
+    </div>
+    <div class="menu-gestor" id="menu-gestor">
+      <button onclick="irPara('ausencias')">Aus&#234;ncias</button>
+      <button onclick="irPara('escala')">Escala</button>
+      <button onclick="irPara('acessos')">Acessos</button>
+      <button onclick="irPara('feristas')">Feristas</button>
     </div>
   </div>
-  <div class="topbar-semana">
-  <button onclick="navegarSemana(-1)">&#8249;</button>
-  <span>Semana&nbsp;</span>
-  <input type="week" id="semana-picker" 
-    style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:3px 8px;font-size:12px;color:#fff;font-family:inherit;cursor:pointer;outline:none"
-    onchange="selecionarSemana(this.value)">
-  <button onclick="navegarSemana(1)">&#8250;</button>
- </div>
-  
-  
-  <div id="menu-gestor" style="display:none;align-items:center;gap:6px">
-  <button onclick="google.script.run.withSuccessHandler(function(url){window.top.location.href=url+'?p=registro_ausencias'}).getScriptUrl()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit">
-    Aus&#234;ncias
-  </button>
-  <button onclick="google.script.run.withSuccessHandler(function(url){window.top.location.href=url+'?p=gestao_escala'}).getScriptUrl()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit">
-    Escala
-  </button>
-  <button onclick="google.script.run.withSuccessHandler(function(url){window.top.location.href=url+'?p=gerenciar_acessos'}).getScriptUrl()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit">
-    Acessos
-  <button onclick="google.script.run.withSuccessHandler(function(url){window.top.location.href=url+'?p=gerenciar_feristas'}).getScriptUrl()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:5px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit">
-  Feristas
-  </button>
-</div>
-</div>
-
   <div class="subbar">
     <div class="nav">
       <button class="active" onclick="showTab('equipes')">Equipes</button>
@@ -183,9 +155,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
       <button onclick="showTab('gestor')">Gestor</button>
     </div>
   </div>
-
   <div class="content">
-
     <div id="tab-equipes" class="tab-content active">
       <div id="eq-alert" class="alert-bar" style="display:none"></div>
       <div class="legend">
@@ -208,14 +178,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
           <option value="cob">Com cobertura / apoio</option>
         </select>
       </div>
-      <div class="dias-header" id="eq-dias-hdr" style="grid-template-columns:168px repeat(5,1fr)">
+      <div class="dias-header" style="grid-template-columns:168px repeat(5,1fr)">
         <div></div>
         <div class="dia-h" id="dh0"></div><div class="dia-h" id="dh1"></div>
         <div class="dia-h" id="dh2"></div><div class="dia-h" id="dh3"></div><div class="dia-h" id="dh4"></div>
       </div>
       <div id="equipes-grid"><div class="loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div></div>
     </div>
-
     <div id="tab-feristas" class="tab-content">
       <div class="filters">
         <input type="text" placeholder="Buscar ferista..." oninput="renderFeristas()" id="fer-busca">
@@ -227,15 +196,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
       </div>
       <div id="feristas-list"><div class="loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div></div>
     </div>
-
     <div id="tab-tecnicos" class="tab-content">
       <div id="tec-alert" class="alert-bar" style="display:none"></div>
-      <div class="legend">
-        <div class="leg"><div class="leg-dot" style="background:var(--cyan-light);border:1px solid var(--cyan-border)"></div>Coberto</div>
-        <div class="leg"><div class="leg-dot" style="background:var(--red-light);border:1px solid var(--red-border)"></div>Descoberto</div>
-        <div class="leg"><div class="leg-dot" style="background:var(--purple-light);border:1px solid var(--purple-border)"></div>Extra autorizado</div>
-        <div class="leg"><div class="leg-dot" style="background:#f8f9fb;border:1px solid var(--border)"></div>Sem aus&ecirc;ncia</div>
-      </div>
       <div class="filters">
         <input type="text" placeholder="Buscar base..." oninput="renderTecnicos()" id="tec-busca">
         <select onchange="renderTecnicos()" id="tec-status">
@@ -251,7 +213,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
       </div>
       <div id="tecnicos-grid"><div class="loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div></div>
     </div>
-
     <div id="tab-gestor" class="tab-content">
       <div id="gestor-content">
         <div class="stats" id="stats-grid"></div>
@@ -263,387 +224,210 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
         <div id="nao-cobertos"></div>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-// =============================================
-// CONFIGURA&Ccedil;&Atilde;O &mdash; substitua pela URL do seu Web App
-// =============================================
-const API_URL = 'https://script.google.com/macros/s/AKfycbxmcYh6y_pp5e_VyfHXpA74cS6hU0xyIK87tFPxmy0lI2hRZ0i6ZrExfgM8yceilpn_/exec';
-
-// Estado global
-let dadosEscala = null;
-let dadosFeristas = null;
-let dadosTecnicos = null;
-let semanaAtual = null; // string yyyy-MM-dd
-let semanas = [];
-
 const DIAS_NOMES = ['Seg','Ter','Qua','Qui','Sex'];
+let dadosEscala = null, dadosFeristas = null, dadosTecnicos = null;
+let semanaAtual = null, semanas = [];
+let acessoAtual = null;
 
-// =============================================
-// INICIALIZA&Ccedil;&Atilde;O
-// =============================================
 async function inicializar() {
   try {
-    const acesso = await api({ acao: 'meu_acesso' });
-    if (acesso && acesso.perfil === 'gestor') {
-      const menu = document.getElementById('menu-gestor');
-      if (menu) menu.style.display = 'flex';
+    acessoAtual = await apiGet({ acao: 'meu_acesso' });
+    if (acessoAtual && acessoAtual.ok && acessoAtual.perfil === 'gestor') {
+      document.getElementById('menu-gestor').style.display = 'flex';
     }
   } catch(e) {}
-
   await carregarSemanas();
   await Promise.all([carregarEscala(), carregarFeristas(), carregarTecnicos()]);
 }
 
 async function carregarSemanas() {
   try {
-    const r = await api({ acao: 'semanas' });
-    if (r.ok) {
-      semanas = r.semanas;
-      if (semanas.length && !semanaAtual) {
-        semanaAtual = semanas[0].inicio;
-      }
-    }
-  } catch(e) { console.warn('Semanas:', e); }
-  // Inicializa picker e label após carregar semanas
+    const r = await apiGet({ acao: 'semanas' });
+    if (r.ok) { semanas = r.semanas; if (semanas.length && !semanaAtual) semanaAtual = semanas[0].inicio; }
+  } catch(e) {}
   if (!semanaAtual) semanaAtual = semanaParaISO(new Date());
-  atualizarPickerESemana();
+  atualizarPicker();
+}
+
+function atualizarPicker() {
+  const p = document.getElementById('semana-picker');
+  if (p && semanaAtual) p.value = dataParaWeekValue(semanaAtual);
+}
+
+function selecionarSemana(v) {
+  if (!v) return;
+  semanaAtual = weekValueParaISO(v);
+  Promise.all([carregarEscala(), carregarFeristas(), carregarTecnicos()]);
+}
+
+function navegarSemana(dir) {
+  const base = semanaAtual ? new Date(semanaAtual + 'T12:00:00') : new Date();
+  base.setDate(base.getDate() + dir * 7);
+  semanaAtual = semanaParaISO(base);
+  atualizarPicker();
+  Promise.all([carregarEscala(), carregarFeristas(), carregarTecnicos()]);
 }
 
 async function carregarEscala() {
   document.getElementById('equipes-grid').innerHTML = loadingHTML();
   try {
-    const r = await api({ acao: 'escala', inicio: semanaAtual });
+    const r = await apiGet({ acao: 'escala', inicio: semanaAtual });
     if (!r.ok) throw new Error(r.erro);
     dadosEscala = r;
-    // Atualiza label da semana
-    atualizarPickerESemana();
-    // Atualiza cabe&ccedil;alhos de dias
-    r.dias.forEach((d, i) => {
-      const el = document.getElementById('dh' + i);
-      if (el) el.textContent = DIAS_NOMES[i] + ' ' + d;
-      const tel = document.getElementById('tdh' + i);
-      if (tel) tel.textContent = DIAS_NOMES[i] + ' ' + d;
+    r.dias.forEach((d,i) => {
+      const el = document.getElementById('dh'+i); if (el) el.textContent = DIAS_NOMES[i]+' '+d;
+      const tel = document.getElementById('tdh'+i); if (tel) tel.textContent = DIAS_NOMES[i]+' '+d;
     });
     renderEquipes();
-  } catch(e) {
-    document.getElementById('equipes-grid').innerHTML = `<div class="erro">Erro ao carregar escala: ${e.message}</div>`;
-  }
+  } catch(e) { document.getElementById('equipes-grid').innerHTML = `<div class="erro">Erro ao carregar escala: ${e.message}</div>`; }
 }
 
 async function carregarFeristas() {
   document.getElementById('feristas-list').innerHTML = loadingHTML();
   try {
-    const r = await api({ acao: 'feristas', inicio: semanaAtual });
+    const r = await apiGet({ acao: 'feristas', inicio: semanaAtual });
     if (!r.ok) throw new Error(r.erro);
-    dadosFeristas = r;
-    renderFeristas();
-  } catch(e) {
-    document.getElementById('feristas-list').innerHTML = `<div class="erro">Erro ao carregar feristas: ${e.message}</div>`;
-  }
+    dadosFeristas = r; renderFeristas();
+  } catch(e) { document.getElementById('feristas-list').innerHTML = `<div class="erro">Erro: ${e.message}</div>`; }
 }
 
 async function carregarTecnicos() {
   document.getElementById('tecnicos-grid').innerHTML = loadingHTML();
   try {
-    const r = await api({ acao: 'tecnicos', inicio: semanaAtual });
+    const r = await apiGet({ acao: 'tecnicos', inicio: semanaAtual });
     if (!r.ok) throw new Error(r.erro);
-    dadosTecnicos = r;
-    renderTecnicos();
-  } catch(e) {
-    document.getElementById('tecnicos-grid').innerHTML = `<div class="erro">Erro ao carregar t&eacute;cnicos: ${e.message}</div>`;
-  }
+    dadosTecnicos = r; renderTecnicos();
+  } catch(e) { document.getElementById('tecnicos-grid').innerHTML = `<div class="erro">Erro: ${e.message}</div>`; }
 }
 
-// =============================================
-// NAVEGA&Ccedil;&Atilde;O DE SEMANA
-// =============================================
-function navegarSemana(dir) {
-  const base = semanaAtual ? new Date(semanaAtual + 'T12:00:00') : new Date();
-  base.setDate(base.getDate() + dir * 7);
-  semanaAtual = semanaParaISO(base);
-  atualizarPickerESemana();
-  Promise.all([carregarEscala(), carregarFeristas(), carregarTecnicos()]);
-}
-
-function atualizarLabelSemana() {
-  if (!semanaAtual) return;
-  const seg = new Date(semanaAtual + 'T12:00:00');
-  const sex = new Date(seg); sex.setDate(seg.getDate() + 4);
-  const fmt = d => `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
-  const label = document.getElementById('semana-label');
-  if (label) label.textContent = `${fmt(seg)} - ${fmt(sex)}/${sex.getFullYear()}`;
-}
-
-function atualizarPickerESemana() {
-  if (!semanaAtual) return;
-  const picker = document.getElementById('semana-picker');
-  if (picker) picker.value = dataParaWeekValue(semanaAtual);
-  atualizarLabelSemana();
-}
-
-function selecionarSemana(weekValue) {
-  if (!weekValue) return;
-  const [ano, semStr] = weekValue.split('-W');
-  const semana = parseInt(semStr);
-  const jan4 = new Date(+ano, 0, 4);
-  const dow = jan4.getDay() || 7;
-  const seg = new Date(jan4);
-  seg.setDate(jan4.getDate() - dow + 1 + (semana - 1) * 7);
-  semanaAtual = seg.toISOString().split('T')[0];
-  atualizarLabelSemana();
-  Promise.all([carregarEscala(), carregarFeristas(), carregarTecnicos()]);
-}
-
-
-function semanaParaISO(data) {
-  const d = new Date(data);
-  const dow = d.getDay();
-  const diff = dow === 0 ? -6 : 1 - dow;
-  d.setDate(d.getDate() + diff);
-  d.setHours(0,0,0,0);
-  return d.toISOString().split('T')[0];
-}
-
-function dataParaWeekValue(yyyyMMdd) {
-  const d = new Date(yyyyMMdd + 'T12:00:00');
-  const ano = d.getFullYear();
-  const startOfYear = new Date(ano, 0, 1);
-  const dow = startOfYear.getDay() || 7;
-  const startOfWeek1 = new Date(startOfYear);
-  startOfWeek1.setDate(startOfYear.getDate() + (dow <= 4 ? 1 - dow : 8 - dow));
-  const diff = d - startOfWeek1;
-  const semana = Math.floor(diff / 604800000) + 1;
-  return `${ano}-W${semana.toString().padStart(2,'0')}`;
-}
-
-
-
-
-// =============================================
-// RENDER: EQUIPES
-// =============================================
 function renderEquipes() {
   if (!dadosEscala) return;
   const busca = document.getElementById('eq-busca').value.toLowerCase();
   const turno = document.getElementById('eq-turno').value;
   const status = document.getElementById('eq-status').value;
   const grid = document.getElementById('equipes-grid');
-
   let lista = dadosEscala.equipes.filter(e => {
     if (!e.equipe.toLowerCase().includes(busca)) return false;
-    if (status === 'sem' && !e.turnos.some(t => t.dias.some(d => d.tipo === 'sem'))) return false;
-    if (status === 'cob' && !e.turnos.some(t => t.dias.some(d => ['cob','apo','ext'].includes(d.tipo)))) return false;
+    if (status==='sem' && !e.turnos.some(t=>t.dias.some(d=>d.tipo==='sem'))) return false;
+    if (status==='cob' && !e.turnos.some(t=>t.dias.some(d=>['cob','apo','ext'].includes(d.tipo)))) return false;
     return true;
   });
-
-  // Alerta de sem cobertura
-  const semCob = dadosEscala.equipes.filter(e => e.turnos.some(t => t.dias.some(d => d.tipo === 'sem')));
+  const semCob = dadosEscala.equipes.filter(e=>e.turnos.some(t=>t.dias.some(d=>d.tipo==='sem')));
   const alertEl = document.getElementById('eq-alert');
-  if (semCob.length) {
-    alertEl.style.display = 'flex';
-    alertEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 1.5L14.5 13H1.5L8 1.5Z" stroke="#d95f1a" stroke-width="1.5" fill="none"/><line x1="8" y1="6" x2="8" y2="10" stroke="#d95f1a" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12" r=".7" fill="#d95f1a"/></svg>
-    ${semCob.length} equipe(s) sem cobertura &mdash; ${semCob.map(e=>`<strong>${e.equipe}</strong>`).join(' &middot; ')}`;
-  } else { alertEl.style.display = 'none'; }
-
-  if (!lista.length) { grid.innerHTML = '<div class="empty">Nenhuma equipe encontrada.</div>'; return; }
-
+  if (semCob.length) { alertEl.style.display='flex'; alertEl.innerHTML = `&#9888; ${semCob.length} equipe(s) sem cobertura &mdash; ${semCob.map(e=>`<strong>${e.equipe}</strong>`).join(' &middot; ')}`; }
+  else alertEl.style.display='none';
+  if (!lista.length) { grid.innerHTML='<div class="empty">Nenhuma equipe encontrada.</div>'; return; }
   grid.innerHTML = lista.map(e => {
-    const ts = turno === 'todos' ? e.turnos : e.turnos.filter(t => t.turno.toUpperCase().startsWith(turno === 'MANHA' ? 'M' : 'T'));
-    const cols = [0,1,2,3,4].map(i =>
-      `<div>${ts.map(t => `<div class="turno-blk"><div class="turno-lbl">${t.turno}</div>${slotHTML(t.dias[i])}</div>`).join('')}</div>`
-    ).join('');
+    const ts = turno==='todos' ? e.turnos : e.turnos.filter(t=>t.turno.toUpperCase().startsWith(turno==='MANHA'?'M':'T'));
+    const cols = [0,1,2,3,4].map(i=>`<div>${ts.map(t=>`<div class="turno-blk"><div class="turno-lbl">${t.turno}</div>${slotHTML(t.dias[i])}</div>`).join('')}</div>`).join('');
     return `<div><div class="equipe-grid" style="grid-template-columns:168px repeat(5,1fr)"><div class="eq-nome">${e.equipe}</div>${cols}</div><div class="sep"></div></div>`;
   }).join('');
 }
 
-// =============================================
-// RENDER: FERISTAS
-// =============================================
 function renderFeristas() {
   if (!dadosFeristas) return;
   const busca = document.getElementById('fer-busca').value.toLowerCase();
   const cat = document.getElementById('fer-cat').value;
   const list = document.getElementById('feristas-list');
-
-  let lista = dadosFeristas.feristas.filter(f =>
-    f.nome.toLowerCase().includes(busca) && (cat === 'todos' || f.cat === cat)
-  );
-
-  if (!lista.length) { list.innerHTML = '<div class="empty">Nenhum ferista encontrado.</div>'; return; }
-
+  let lista = dadosFeristas.feristas.filter(f=>f.nome.toLowerCase().includes(busca)&&(cat==='todos'||f.cat===cat));
+  if (!lista.length) { list.innerHTML='<div class="empty">Nenhum ferista encontrado.</div>'; return; }
   list.innerHTML = lista.map(f => {
-    const dias = f.dias.map((d, i) => {
-      const s = d.slots.length === 0
+    const dias = f.dias.map((d,i) => {
+      const s = d.slots.length===0
         ? `<div class="fer-slot livre"><div class="fer-slot-tipo">livre</div><div class="fer-slot-local">Sem aloca&ccedil;&atilde;o</div></div>`
-        : d.slots.map(s => `<div class="fer-slot ${s.tipo}">
-            <div class="fer-slot-tipo">${s.tipo === 'cob' ? 'Cobertura' : s.tipo === 'apo' ? 'Apoio' : 'Extra'}</div>
-            <div class="fer-slot-local">${s.local}</div>
-            <div class="fer-slot-turno">${s.turno}</div>
-          </div>`).join('');
+        : d.slots.map(s=>`<div class="fer-slot ${s.tipo}"><div class="fer-slot-tipo">${s.tipo==='cob'?'Cobertura':s.tipo==='apo'?'Apoio':'Extra'}</div><div class="fer-slot-local">${s.local}</div><div class="fer-slot-turno">${s.turno}</div></div>`).join('');
       return `<div class="fer-dia"><div class="fer-dia-lbl">${DIAS_NOMES[i]}</div>${s}</div>`;
     }).join('');
-    return `<div class="fer-card">
-      <div class="fer-head">
-        <div class="fer-av ${f.cat === 'medico' ? 'med' : 'enf'}">${f.ini}</div>
-        <div><div class="fer-nome">${f.nome}</div><span class="fer-cat ${f.cat === 'medico' ? 'med' : 'enf'}">${f.cat}</span></div>
-      </div>
-      <div class="fer-week">${dias}</div>
-    </div>`;
+    return `<div class="fer-card"><div class="fer-head"><div class="fer-av ${f.cat==='medico'?'med':'enf'}">${f.ini}</div><div><div class="fer-nome">${f.nome}</div><span class="fer-cat ${f.cat==='medico'?'med':'enf'}">${f.cat}</span></div></div><div class="fer-week">${dias}</div></div>`;
   }).join('');
 }
 
-// =============================================
-// RENDER: T&Eacute;CNICOS
-// =============================================
 function renderTecnicos() {
   if (!dadosTecnicos) return;
   const busca = document.getElementById('tec-busca').value.toLowerCase();
   const status = document.getElementById('tec-status').value;
   const grid = document.getElementById('tecnicos-grid');
-
-  let lista = dadosTecnicos.tecnicos ? dadosTecnicos.tecnicos.filter(b => {
+  let lista = (dadosTecnicos.tecnicos||[]).filter(b => {
     if (!b.base.toLowerCase().includes(busca)) return false;
-    if (status === 'sem' && !b.dias.some(d => d.tipo === 'tec-sem')) return false;
-    if (status === 'ext' && !b.dias.some(d => d.tipo === 'tec-ext')) return false;
+    if (status==='sem' && !b.dias.some(d=>d.tipo==='tec-sem')) return false;
+    if (status==='ext' && !b.dias.some(d=>d.tipo==='tec-ext')) return false;
     return true;
-  }) : [];
-
-  const semCob = dadosTecnicos.tecnicos ? dadosTecnicos.tecnicos.filter(b => b.dias.some(d => d.tipo === 'tec-sem')) : [];
+  });
+  const semCob = (dadosTecnicos.tecnicos||[]).filter(b=>b.dias.some(d=>d.tipo==='tec-sem'));
   const alertEl = document.getElementById('tec-alert');
-  if (semCob.length) {
-    alertEl.style.display = 'flex';
-    alertEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 1.5L14.5 13H1.5L8 1.5Z" stroke="#d95f1a" stroke-width="1.5" fill="none"/><line x1="8" y1="6" x2="8" y2="10" stroke="#d95f1a" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12" r=".7" fill="#d95f1a"/></svg>
-    ${semCob.length} base(s) com t&eacute;cnico insuficiente &mdash; ${semCob.map(b=>`<strong>${b.base}</strong>`).join(' &middot; ')}`;
-  } else { alertEl.style.display = 'none'; }
-
-  if (!lista.length) { grid.innerHTML = '<div class="empty">Nenhuma base encontrada.</div>'; return; }
-
+  if (semCob.length) { alertEl.style.display='flex'; alertEl.innerHTML=`&#9888; ${semCob.length} base(s) com t&eacute;cnico insuficiente`; }
+  else alertEl.style.display='none';
+  if (!lista.length) { grid.innerHTML='<div class="empty">Nenhuma base encontrada.</div>'; return; }
   grid.innerHTML = lista.map(b => {
-    const cols = [0,1,2,3,4].map(i => `<div>${tecSlotHTML(b.dias[i])}</div>`).join('');
+    const cols = [0,1,2,3,4].map(i=>`<div>${tecSlotHTML(b.dias[i])}</div>`).join('');
     return `<div><div class="equipe-grid" style="grid-template-columns:168px repeat(5,1fr)"><div class="eq-nome">${b.base}</div>${cols}</div><div class="sep"></div></div>`;
   }).join('');
 }
 
-// =============================================
-// GESTOR
-// =============================================
-
+async function carregarGestor() {
+  try {
+    const r = await apiGet({ acao: 'gestor', inicio: semanaAtual });
+    if (r.ok) renderGestor(r);
+    else document.getElementById('stats-grid').innerHTML = `<div class="erro">${r.erro||'Sem permiss&atilde;o'}</div>`;
+  } catch(e) { document.getElementById('stats-grid').innerHTML = `<div class="erro">Erro ao carregar.</div>`; }
+}
 
 function renderGestor(r) {
-  const { stats, categorias, naoCobertos } = r;
+  const {stats,categorias,naoCobertos} = r;
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat ok"><div class="stat-lbl">Coberturas</div><div class="stat-val">${stats.cob}</div><div class="stat-sub">feristas alocados</div></div>
     <div class="stat warn"><div class="stat-lbl">Sem cobertura</div><div class="stat-val">${stats.sem}</div><div class="stat-sub">buracos abertos</div></div>
-    <div class="stat info"><div class="stat-lbl">Extras auth.</div><div class="stat-val">${stats.ext}</div><div class="stat-sub">autorizados esta semana</div></div>
-    <div class="stat neutral"><div class="stat-lbl">Taxa cobertura</div><div class="stat-val">${stats.perc}%</div><div class="stat-sub">buracos cobertos</div></div>
-  `;
-  const m = categorias.medico, en = categorias.enfermeiro;
+    <div class="stat info"><div class="stat-lbl">Extras auth.</div><div class="stat-val">${stats.ext}</div><div class="stat-sub">autorizados</div></div>
+    <div class="stat neutral"><div class="stat-lbl">Taxa cobertura</div><div class="stat-val">${stats.perc}%</div><div class="stat-sub">buracos cobertos</div></div>`;
+  const m=categorias.medico, en=categorias.enfermeiro;
   document.getElementById('cat-cards').innerHTML = `
     <div class="cat-card med"><div class="cat-lbl">M&eacute;dicos</div><div class="cat-line">Coberturas: <strong>${m.cob}</strong><br>Apoios: <strong>${m.apo}</strong><br>Sem cobertura: <strong>${m.sem}</strong></div></div>
     <div class="cat-card enf"><div class="cat-lbl">Enfermeiros</div><div class="cat-line">Coberturas: <strong>${en.cob}</strong><br>Apoios: <strong>${en.apo}</strong><br>Sem cobertura: <strong>${en.sem}</strong></div></div>
-    <div class="cat-card tec"><div class="cat-lbl">T&eacute;cnicos</div><div class="cat-line">Ver aba T&eacute;cnicos</div></div>
-  `;
+    <div class="cat-card tec"><div class="cat-lbl">T&eacute;cnicos</div><div class="cat-line">Ver aba T&eacute;cnicos</div></div>`;
   document.getElementById('nao-cobertos').innerHTML = naoCobertos.length
-    ? naoCobertos.map(x => `<div class="nao-cob-item">
-        <div style="flex:1"><div class="nao-cob-eq">${x.equipe}</div><div class="nao-cob-det">${x.turno} &middot; ${x.cat} &middot; ${x.dKey}</div></div>
-        <button class="nao-cob-btn" onclick="abrirAutorizarExtra('${x.equipe}','${x.turno}','${x.dKey}','${x.cat}')">Autorizar extra &#8599;</button>
-      </div>`).join('')
-    : '<div class="empty" style="color:var(--green)">Todos os buracos foram cobertos esta semana.</div>';
+    ? naoCobertos.map(x=>`<div class="nao-cob-item"><div style="flex:1"><div class="nao-cob-eq">${x.equipe}</div><div class="nao-cob-det">${x.turno} &middot; ${x.cat} &middot; ${x.dKey}</div></div><button class="nao-cob-btn" onclick="autorizarExtra('${x.equipe}','${x.turno}','${x.dKey}','${x.cat}')">Autorizar extra &rarr;</button></div>`).join('')
+    : '<div class="empty" style="color:var(--green)">Todos os buracos foram cobertos.</div>';
 }
 
-async function abrirAutorizarExtra(equipe, turno, dKey, cat) {
-  const profissional = prompt(`Autorizar extra:\n${equipe} &middot; ${turno} &middot; ${dKey}\n\nNome do profissional:`);
+async function autorizarExtra(equipe, turno, dKey, cat) {
+  const profissional = prompt(`Autorizar extra:\n${equipe} - ${turno} - ${dKey}\n\nNome do profissional:`);
   if (!profissional) return;
-  const motivo = prompt('Motivo da aus&ecirc;ncia original:') || '';
-
-  try {
-    const partes = dKey.split('-');
-    const dFormatado = `${partes[2]}/${partes[1]}/${partes[0]}`;
-    const r = await apiPost({
-      acao: 'autorizar_extra',
-      equipe, turno, dias: [dFormatado],
-      categoria: cat, tipo: 'Plant&atilde;o extra pago',
-      profissional, motivo
-    });
-    if (r.ok) {
-      alert('Extra autorizado com sucesso!');
-      await Promise.all([carregarEscala(), carregarFeristas()]);
-      const rGest = await api({ acao: 'gestor', inicio: semanaAtual });
-      if (rGest.ok) renderGestor(rGest);
-    } else {
-      alert('Erro: ' + r.erro);
-    }
-  } catch(e) { alert('Erro ao autorizar: ' + e.message); }
+  const motivo = prompt('Motivo da aus\u00eancia original:') || '';
+  const p = dKey.split('-');
+  const r = await apiPost({ acao:'autorizar_extra', equipe, turno, dias:[`${p[2]}/${p[1]}/${p[0]}`], categoria:cat, tipo:'Plant\u00e3o extra pago', profissional, motivo });
+  if (r.ok) { alert('Extra autorizado!'); carregarEscala(); carregarGestor(); }
+  else alert('Erro: '+r.erro);
 }
-
-// =============================================
-// HELPERS DE RENDER
-// =============================================
 
 function slotHTML(d) {
-  if (!d || d.tipo === 'vaga') return '<div class="slot vaga"></div>';
-  const tipos = { cob:'Cobertura', apo:'Apoio', sem:'Sem cobertura', ext:'Extra autorizado' };
-  const catLabel = d.cat === 'med' ? 'm&eacute;dico' : d.cat === 'enf' ? 'enfermeiro' : '';
-  const tag = catLabel ? `<span class="pill ${d.cat}">${catLabel}</span>` : '';
-  return `<div class="slot ${d.tipo}">
-    <div class="slot-tipo">${tipos[d.tipo]||d.tipo}</div>
-    <div class="slot-nome">${d.nome||'&mdash;'}</div>
-    ${tag}
-  </div>`;
+  if (!d||d.tipo==='vaga') return '<div class="slot vaga"></div>';
+  const tipos={cob:'Cobertura',apo:'Apoio',sem:'Sem cobertura',ext:'Extra autorizado'};
+  const catLabel = d.cat==='med'?'m&eacute;dico':d.cat==='enf'?'enfermeiro':'';
+  const tag = catLabel?`<span class="pill ${d.cat}">${catLabel}</span>`:'';
+  let html = `<div class="slot ${d.tipo}"><div class="slot-tipo">${tipos[d.tipo]||d.tipo}</div><div class="slot-nome">${d.nome||'&mdash;'}</div>${tag}</div>`;
+  if (d.extra&&d.extra.length) d.extra.forEach(e=>{html+=slotHTML(e);});
+  return html;
 }
 
-function loadingHTML() {
-  return '<div class="loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>';
+function tecSlotHTML(d) {
+  if (!d||d.tipo==='vaga') return '<div class="slot vaga" style="min-height:38px"></div>';
+  const tipos={'tec-ok':'Coberto','tec-sem':'Descoberto','tec-ext':'Extra autorizado'};
+  return `<div class="slot ${d.tipo}"><div class="slot-tipo">${tipos[d.tipo]}</div><div class="slot-nome">${d.nome||'&mdash;'}</div></div>`;
 }
 
-// =============================================
-// API
-// =============================================
-function api(params) {
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(resolve)
-      .withFailureHandler(reject)
-      .chamarAPI(params);
-  });
-}
- 
-function apiPost(body) {
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(resolve)
-      .withFailureHandler(reject)
-      .chamarAPIPost(body);
-  });
-}
+function loadingHTML() { return '<div class="loading"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></div>'; }
 
-// =============================================
-// TABS
-// =============================================
 function showTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelectorAll('.nav button').forEach((b, i) => {
-    b.classList.toggle('active', ['equipes','feristas','tecnicos','gestor'][i] === tab);
-  });
-  if (tab === 'gestor') carregarGestor();
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.nav button').forEach((b,i)=>b.classList.toggle('active',['equipes','feristas','tecnicos','gestor'][i]===tab));
+  if (tab==='gestor') carregarGestor();
 }
 
-async function carregarGestor() {
-  try {
-    const r = await api({ acao: 'gestor', inicio: semanaAtual });
-    if (r.ok) renderGestor(r);
-    else document.getElementById('stats-grid').innerHTML = '<div style="color:var(--red-text,#8b1a14);font-size:13px;padding:12px">' + (r.erro||'Sem permiss&atilde;o') + '</div>';
-  } catch(e) {
-    document.getElementById('stats-grid').innerHTML = '<div style="color:var(--red-text,#8b1a14);font-size:13px;padding:12px">Erro ao carregar dados do gestor.</div>';
-  }
-}
-
-// Inicia
 inicializar();
 </script>
 </body>
