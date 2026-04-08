@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciar Acessos &middot; SAD BH</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6f9;--card:#fff;--border:#e4e8ef;--border2:#d0d7e3;
+  --text:#1b2438;--muted:#6b7a96;--hint:#a0abbe;
+  --green:#2e7d4f;--green-mid:#3da06a;--green-light:#e8f5ee;--green-border:#b6dfc8;
+  --red:#c0392b;--red-light:#fdecea;--red-border:#f5b8b2;
+  --blue:#1a5fa6;--blue-light:#e8f0fb;--blue-border:#aac5ef;
+  --purple:#6d3aad;--purple-light:#f0eafb;--purple-border:#c9aef0;
+  --orange:#d95f1a;--orange-light:#fdf0e8;--orange-border:#f5c49a;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px}
+.app{max-width:860px;margin:0 auto;padding:0 0 40px}
+.topbar{background:var(--green);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-icon{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.topbar-title{font-size:14px;font-weight:700;color:#fff}
+.topbar-sub{font-size:11px;color:#a8e6c0}
+.topbar-logout{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:4px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:var(--font)}
+.content{padding:20px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title{font-size:16px;font-weight:700}
+.page-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600}
+.card-body{padding:18px}
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.field input,.field select{width:100%;background:#fff;border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--text);font-family:var(--font);outline:none}
+.field input:focus,.field select:focus{border-color:var(--green-mid)}
+.field input::placeholder{color:var(--hint)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.btn-pri{background:var(--green);border:none;border-radius:7px;padding:9px 20px;font-size:13px;color:#fff;cursor:pointer;font-family:var(--font);font-weight:600}
+.btn-pri:hover{background:var(--green-mid)}
+.btn-sec{background:#fff;border:1px solid var(--border2);border-radius:7px;padding:9px 16px;font-size:13px;color:var(--muted);cursor:pointer;font-family:var(--font)}
+.btn-danger{background:#fff;border:1px solid var(--red-border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--red);cursor:pointer;font-family:var(--font);font-weight:500}
+.btn-danger:hover{background:var(--red-light)}
+.alert{border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:14px;border-left:3px solid}
+.alert.success{background:var(--green-light);border-color:var(--green);color:#1a5c35}
+.alert.err{background:var(--red-light);border-color:var(--red);color:#8b1a14}
+.alert.info{background:var(--blue-light);border-color:var(--blue);color:#0d3070}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--bg);padding:8px 12px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border)}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbfc}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge.gestor{background:var(--green-light);color:var(--green);border:1px solid var(--green-border)}
+.badge.ferista{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border)}
+.badge.equipe{background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-border)}
+.empty{text-align:center;padding:32px;color:var(--hint)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ref-hint{font-size:11px;color:var(--hint);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/>
+          <path d="M3 9h18" stroke="#fff" stroke-width="1.8"/>
+          <path d="M8 2v4M16 2v4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="topbar-title">Cobertura de Escalas</div>
+        <div class="topbar-sub">SAD BH &middot; Gerenciar acessos</div>
+      </div>
+    </div>
+    <button class="topbar-logout" onclick="google.script.run.withSuccessHandler(function(url){window.top.location.href=url+'?p=frontend_integracao'}).getScriptUrl()">&#8592; Painel</button>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Gerenciar acessos</div>
+        <div class="page-sub">Controle quem pode acessar o sistema e com qual perfil</div>
+      </div>
+    </div>
+
+    <div id="alert-global"></div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Adicionar usu&aacute;rio</div>
+      </div>
+      <div class="card-body">
+        <div class="field-row-3">
+          <div class="field">
+            <label>E-mail *</label>
+            <input type="email" id="f-email" placeholder="usuario@gmail.com">
+          </div>
+          <div class="field">
+            <label>Perfil *</label>
+            <select id="f-perfil" onchange="atualizarCampoRef()">
+              <option value="">Selecione...</option>
+              <option value="gestor">Gestor</option>
+              <option value="ferista">Ferista</option>
+              <option value="equipe">Equipe</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Nome</label>
+            <input type="text" id="f-nome" placeholder="Nome do usu&aacute;rio">
+          </div>
+        </div>
+        <div class="field" id="field-ref" style="display:none">
+          <label id="ref-label">Refer&ecirc;ncia</label>
+          <select id="f-ref">
+            <option value="">Selecione...</option>
+          </select>
+          <div class="ref-hint" id="ref-hint"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn-pri" onclick="salvarAcesso()">
+            <span id="btn-salvar-txt">Adicionar</span>
+          </button>
+          <button class="btn-sec" onclick="limparForm()">Limpar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Usu&aacute;rios com acesso</div>
+        <span id="total-badge" style="font-size:11px;color:var(--muted)"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>E-mail</th>
+              <th>Perfil</th>
+              <th>Nome</th>
+              <th>Refer&ecirc;ncia</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="lista-tbody">
+            <tr><td colspan="5" class="empty">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--blue-border)">
+      <div class="card-head" style="background:var(--blue-light)">
+        <div class="card-title" style="color:var(--blue)">Como funcionam os perfis</div>
+      </div>
+      <div class="card-body" style="font-size:12px;line-height:1.9;color:var(--text)">
+        <strong>Gestor</strong> &mdash; acesso total a todos os m&oacute;dulos: painel, registro de aus&ecirc;ncias, gest&atilde;o de escala e esta tela.<br>
+        <strong>Ferista</strong> &mdash; acessa o painel p&uacute;blico com sua pr&oacute;pria escala em destaque na aba Feristas.<br>
+        <strong>Equipe</strong> &mdash; acessa o painel p&uacute;blico com sua pr&oacute;pria equipe em destaque na aba Equipes. O campo Refer&ecirc;ncia define qual equipe.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxmcYh6y_pp5e_VyfHXpA74cS6hU0xyIK87tFPxmy0lI2hRZ0i6ZrExfgM8yceilpn_/exec';
+
+let equipes = [];
+let feristas = [];
+
+async function init() {
+  await Promise.all([carregarEquipes(), carregarFeristas(), carregarLista()]);
+}
+
+async function carregarEquipes() {
+  try {
+    const r = await api({ acao: 'equipes_lista' });
+    if (r.ok) equipes = r.equipes;
+  } catch(e) {}
+}
+
+async function carregarFeristas() {
+  try {
+    const r = await api({ acao: 'feristas' });
+    if (r.ok) feristas = (r.feristas || []).map(f => f.nome);
+  } catch(e) {}
+}
+
+async function carregarLista() {
+  try {
+    const r = await api({ acao: 'cad_acessos' });
+    if (r.ok) renderLista(r.acessos);
+  } catch(e) {
+    document.getElementById('lista-tbody').innerHTML = '<tr><td colspan="5" class="empty">Erro ao carregar.</td></tr>';
+  }
+}
+
+function renderLista(acessos) {
+  document.getElementById('total-badge').textContent = acessos.length + ' usu&aacute;rio(s)';
+  if (!acessos.length) {
+    document.getElementById('lista-tbody').innerHTML = '<tr><td colspan="5" class="empty">Nenhum usu&aacute;rio cadastrado.</td></tr>';
+    return;
+  }
+  document.getElementById('lista-tbody').innerHTML = acessos.map(a => `
+    <tr>
+      <td style="font-weight:500">${a.email}</td>
+      <td><span class="badge ${a.perfil}">${a.perfil}</span></td>
+      <td style="color:var(--muted)">${a.nome || '&mdash;'}</td>
+      <td style="color:var(--muted)">${a.ref || '&mdash;'}</td>
+      <td><button class="btn-danger" onclick="excluir(${a.row},'${a.email}')">Remover</button></td>
+    </tr>
+  `).join('');
+}
+
+function atualizarCampoRef() {
+  const perfil = document.getElementById('f-perfil').value;
+  const wrap = document.getElementById('field-ref');
+  const sel = document.getElementById('f-ref');
+  const lbl = document.getElementById('ref-label');
+  const hint = document.getElementById('ref-hint');
+
+  sel.innerHTML = '<option value="">Selecione...</option>';
+
+  if (perfil === 'equipe') {
+    wrap.style.display = 'block';
+    lbl.textContent = 'Equipe';
+    hint.textContent = 'A equipe que este usu&aacute;rio representa';
+    equipes.forEach(eq => {
+      const opt = document.createElement('option');
+      opt.value = eq; opt.textContent = eq;
+      sel.appendChild(opt);
+    });
+  } else if (perfil === 'ferista') {
+    wrap.style.display = 'block';
+    lbl.textContent = 'Ferista';
+    hint.textContent = 'O ferista correspondente a este usu&aacute;rio';
+    feristas.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f; opt.textContent = f;
+      sel.appendChild(opt);
+    });
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+async function salvarAcesso() {
+  const email = document.getElementById('f-email').value.trim();
+  const perfil = document.getElementById('f-perfil').value;
+  const nome = document.getElementById('f-nome').value.trim();
+  const ref = document.getElementById('f-ref').value;
+
+  if (!email || !perfil) {
+    mostrarAlert('err', 'E-mail e perfil s&atilde;o obrigat&oacute;rios.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-salvar-txt');
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const r = await apiPost({ acao: 'salvar_acesso', email, perfil, nome, ref });
+    if (r.ok) {
+      mostrarAlert('success', `Usu&aacute;rio ${r.acao === 'criado' ? 'adicionado' : 'atualizado'} com sucesso.`);
+      limparForm();
+      await carregarLista();
+    } else {
+      mostrarAlert('err', 'Erro: ' + r.erro);
+    }
+  } catch(e) {
+    mostrarAlert('err', 'Erro de comunica&ccedil;&atilde;o.');
+  } finally {
+    btn.textContent = 'Adicionar';
+  }
+}
+
+async function excluir(row, email) {
+  if (!confirm('Remover acesso de ' + email + '?')) return;
+  try {
+    const r = await apiPost({ acao: 'excluir_acesso', row });
+    if (r.ok) { await carregarLista(); }
+    else mostrarAlert('err', 'Erro: ' + r.erro);
+  } catch(e) { mostrarAlert('err', 'Erro.'); }
+}
+
+function limparForm() {
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-perfil').value = '';
+  document.getElementById('f-nome').value = '';
+  document.getElementById('f-ref').value = '';
+  document.getElementById('field-ref').style.display = 'none';
+}
+
+function mostrarAlert(tipo, msg) {
+  document.getElementById('alert-global').innerHTML = `<div class="alert ${tipo}">${msg}</div>`;
+  setTimeout(() => document.getElementById('alert-global').innerHTML = '', 4000);
+}
+
+function api(params) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      .chamarAPI(params);
+  });
+}
+ 
+function apiPost(body) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      .chamarAPIPost(body);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
