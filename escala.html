@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escala · Cobertura de Escalas · SAD BH</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="auth.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>Escala</h1>
+    <div class="sub">Cobertura de Escalas &middot; SAD BH</div>
+  </div>
+  <div class="topbar-user">
+    <span id="user-label"></span>
+    <button class="btn-sair" onclick="authLogout()">Sair</button>
+  </div>
+</div>
+
+<div class="container" id="app" style="display:none;max-width:1400px">
+
+  <div class="card" id="card-restrito" style="display:none">
+    <p class="msg-erro">Esta tela não está disponível para o seu perfil.</p>
+  </div>
+
+  <div id="conteudo" style="display:none">
+    <div class="card">
+      <div class="form-row" style="align-items:end">
+        <div class="form-field">
+          <label>Categoria</label>
+          <select id="f-categoria">
+            <option value="medico">Médico</option>
+            <option value="enfermeiro">Enfermeiro</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Mês</label>
+          <input id="f-mes" type="month">
+        </div>
+        <div class="form-field">
+          <label>Equipe</label>
+          <select id="f-equipe">
+            <option value="">Todas as equipes</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="grade-erro"></div>
+      <div class="grade-wrap">
+        <table class="grade" id="tabela-grade"></table>
+      </div>
+      <div class="legenda" id="legenda"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-dia-container"></div>
+
+<script>
+var CODIGO_INFO = {
+  'Férias Regulamentares':   { codigo: 'FR',   bg: '#dceefb', cor: '#1d5fa8' },
+  'Férias Prêmio':           { codigo: 'FP',   bg: '#f5efe0', cor: '#8a6d1d' },
+  'Licença médica':          { codigo: 'LM',   bg: '#efe3fb', cor: '#6b3fa0' },
+  'Licença maternidade':     { codigo: 'LMA',  bg: '#fbe3ef', cor: '#a03f70' },
+  'Licença paternidade':     { codigo: 'LP',   bg: '#e3ecfb', cor: '#3f5fa0' },
+  'Licença Gala':            { codigo: 'LG',   bg: '#e3fbe9', cor: '#2e7d4f' },
+  'Vacância do cargo':       { codigo: 'V',    bg: '#fdecea', cor: '#c0392b' },
+  'Afastamento INSS':        { codigo: 'INSS', bg: '#eceff1', cor: '#546e7a' },
+  'Falta não justificada':   { codigo: 'FA',   bg: '#fde9d7', cor: '#c0662e' },
+  'Pausa Contratual':        { codigo: 'PC',   bg: '#dcf4f1', cor: '#1d7a6e' },
+  'Folga':                   { codigo: 'FO',   bg: '#dff7fb', cor: '#00838f' },
+  'Folga - Serviço Eleitoral': { codigo: 'TRE', bg: '#fbf1d7', cor: '#a3831d' },
+  'Outro':                   { codigo: 'OUT',  bg: '#eceff1', cor: '#546e7a' }
+};
+var CODIGO_NORMAL = { codigo: 'C', bg: '#eaf3ee', cor: '#2e7d4f' };
+var MOTIVOS_PERMITEM_EXTRA = ['Férias Prêmio','Folga - Serviço Eleitoral','Licença médica','Licença maternidade','Pausa Contratual','Falta não justificada','Licença Gala'];
+var DIA_SEMANA_LETRA = ['D','S','T','Q','Q','S','S']; // getDay(): 0=domingo
+
+var equipesCache = [];
+var pessoasCache = [];
+var linhasGrade = [];
+var ausenciasMes = [];
+var alocacoesMes = [];
+var diasDoMes = [];
+
+function initTela() {
+  document.getElementById('app').style.display = 'block';
+  var acesso = window.meuAcesso;
+  var rotulo = acesso.equipe_nome || acesso.pessoa_nome || acesso.email;
+  document.getElementById('user-label').textContent = rotulo + ' (' + acesso.perfil + ')';
+
+  if (acesso.perfil === 'pessoa') {
+    document.getElementById('card-restrito').style.display = 'block';
+    return;
+  }
+  document.getElementById('conteudo').style.display = 'block';
+
+  var hoje = new Date();
+  document.getElementById('f-mes').value = hoje.toISOString().slice(0, 7);
+
+  document.getElementById('f-categoria').addEventListener('change', carregarGrade);
+  document.getElementById('f-mes').addEventListener('change', carregarGrade);
+  document.getElementById('f-equipe').addEventListener('change', renderGrade);
+
+  carregarEquipes().then(carregarGrade);
+  renderLegenda();
+}
+
+function renderLegenda() {
+  var itens = [CODIGO_NORMAL].concat(Object.values(CODIGO_INFO));
+  document.getElementById('legenda').innerHTML = itens.map(function (i) {
+    return '<div class="legenda-item"><span class="legenda-cor" style="background:' + i.bg + '"></span>' + i.codigo + '</div>';
+  }).join('');
+}
+
+function carregarEquipes() {
+  return supabaseClient.from('equipes').select('id, nome').order('nome').then(function (res) {
+    equipesCache = res.data || [];
+    document.getElementById('f-equipe').innerHTML = '<option value="">Todas as equipes</option>' +
+      equipesCache.map(function (e) { return '<option value="' + e.id + '">' + e.nome + '</option>'; }).join('');
+  });
+}
+
+function calcularDiasDoMes(mesStr) {
+  var partes = mesStr.split('-');
+  var ano = parseInt(partes[0], 10);
+  var mes = parseInt(partes[1], 10);
+  var ultimoDia = new Date(ano, mes, 0).getDate();
+  var dias = [];
+  for (var d = 1; d <= ultimoDia; d++) {
+    var dataObj = new Date(ano, mes - 1, d);
+    var iso = ano + '-' + String(mes).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    dias.push({ iso: iso, numero: d, letra: DIA_SEMANA_LETRA[dataObj.getDay()] });
+  }
+  return dias;
+}
+
+function carregarGrade() {
+  var categoria = document.getElementById('f-categoria').value;
+  var mesStr = document.getElementById('f-mes').value;
+  if (!mesStr) return;
+  diasDoMes = calcularDiasDoMes(mesStr);
+  var iniMes = diasDoMes[0].iso;
+  var fimMes = diasDoMes[diasDoMes.length - 1].iso;
+
+  var lotacoesQ = supabaseClient
+    .from('lotacoes')
+    .select('id, turno, equipe_id, equipes(nome), contratos(pessoa_id, pessoas(nome, categoria, ativo))')
+    .not('turno', 'is', null)
+    .not('equipe_id', 'is', null);
+
+  var ausenciasQ = supabaseClient
+    .from('ausencias')
+    .select('id, pessoa_id, equipe_id, motivo, turno, dias');
+
+  var alocacoesQ = supabaseClient
+    .from('alocacoes')
+    .select('id, equipe_id, data, turno, pessoa_id, tipo, pessoas(nome)')
+    .gte('data', iniMes)
+    .lte('data', fimMes);
+
+  Promise.all([lotacoesQ, ausenciasQ, alocacoesQ]).then(function (results) {
+    var lotacoesRes = results[0], ausenciasRes = results[1], alocacoesRes = results[2];
+
+    if (lotacoesRes.error || ausenciasRes.error || alocacoesRes.error) {
+      var msgs = [lotacoesRes.error, ausenciasRes.error, alocacoesRes.error]
+        .filter(Boolean).map(function (e) { return e.message; }).join(' | ');
+      document.getElementById('grade-erro').innerHTML =
+        '<p class="msg-erro">Erro ao carregar dados da grade: ' + msgs + '</p>';
+      console.error('lotacoes:', lotacoesRes.error, 'ausencias:', ausenciasRes.error, 'alocacoes:', alocacoesRes.error);
+      return;
+    }
+
+    linhasGrade = (lotacoesRes.data || [])
+      .filter(function (l) {
+        return l.contratos && l.contratos.pessoas && l.contratos.pessoas.categoria === categoria && l.contratos.pessoas.ativo;
+      })
+      .map(function (l) {
+        return {
+          equipeId: l.equipe_id,
+          equipeNome: l.equipes ? l.equipes.nome : '',
+          turno: l.turno,
+          pessoaId: l.contratos.pessoa_id,
+          pessoaNome: l.contratos.pessoas.nome
+        };
+      });
+
+    var ordemTurno = { MANHA: 0, INTER: 1, TARDE: 2 };
+    linhasGrade.sort(function (a, b) {
+      if (a.equipeNome !== b.equipeNome) return a.equipeNome.localeCompare(b.equipeNome);
+      return ordemTurno[a.turno] - ordemTurno[b.turno];
+    });
+
+    ausenciasMes = ausenciasRes.data || [];
+    alocacoesMes = alocacoesRes.data || [];
+
+    renderGrade();
+  });
+}
+
+function ausenciaPara(pessoaId, turno, dataIso) {
+  for (var i = 0; i < ausenciasMes.length; i++) {
+    var a = ausenciasMes[i];
+    if (a.pessoa_id === pessoaId && a.turno === turno && a.dias && a.dias.indexOf(dataIso) !== -1) {
+      return a;
+    }
+  }
+  return null;
+}
+
+function alocacoesPara(equipeId, turno, dataIso) {
+  return alocacoesMes.filter(function (al) {
+    return al.equipe_id === equipeId && al.turno === turno && al.data === dataIso;
+  });
+}
+
+function renderGrade() {
+  var equipeFiltro = document.getElementById('f-equipe').value;
+  var linhas = linhasGrade.filter(function (l) { return !equipeFiltro || l.equipeId === equipeFiltro; });
+
+  var html = '<thead><tr>' +
+    '<th class="col-fixa">Equipe</th><th class="col-fixa col-fixa2">Turno</th><th class="col-fixa col-fixa3">Titular</th>';
+  diasDoMes.forEach(function (d) {
+    html += '<th>' + d.letra + '<br>' + d.numero + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  if (linhas.length === 0) {
+    html += '<tr><td colspan="' + (3 + diasDoMes.length) + '" class="msg-vazio">Nenhum registro para essa categoria/equipe.</td></tr>';
+  }
+
+  linhas.forEach(function (l) {
+    html += '<tr>' +
+      '<td class="col-fixa">' + l.equipeNome + '</td>' +
+      '<td class="col-fixa col-fixa2">' + (l.turno === 'MANHA' ? 'Manhã' : l.turno === 'INTER' ? 'Inter' : 'Tarde') + '</td>' +
+      '<td class="col-fixa col-fixa3">' + l.pessoaNome + '</td>';
+
+    diasDoMes.forEach(function (d) {
+      var ausencia = ausenciaPara(l.pessoaId, l.turno, d.iso);
+      var info = ausencia ? (CODIGO_INFO[ausencia.motivo] || CODIGO_NORMAL) : CODIGO_NORMAL;
+      var codigo = ausencia ? info.codigo : 'C';
+      var coberturas = ausencia ? alocacoesPara(l.equipeId, l.turno, d.iso) : [];
+      var marcador = '';
+      if (ausencia) {
+        marcador = coberturas.length > 0
+          ? '<span class="marcador-ok"></span>'
+          : '<span class="marcador-gap"></span>';
+      }
+      html += '<td class="dia-cel" style="background:' + info.bg + ';color:' + info.cor + '" ' +
+        'onclick="abrirModalDia(\'' + l.equipeId + '\',\'' + l.turno + '\',\'' + d.iso + '\',\'' + l.pessoaId + '\')">' +
+        codigo + marcador + '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  document.getElementById('tabela-grade').innerHTML = html;
+}
+
+// ---------------- MODAL DO DIA ----------------
+var buscaPessoaModalCache = [];
+
+function abrirModalDia(equipeId, turno, dataIso, pessoaIdTitular) {
+  var linha = linhasGrade.find(function (l) { return l.equipeId === equipeId && l.turno === turno && l.pessoaId === pessoaIdTitular; });
+  var ausencia = ausenciaPara(pessoaIdTitular, turno, dataIso);
+  var coberturas = alocacoesPara(equipeId, turno, dataIso);
+  var turnoLabel = turno === 'MANHA' ? 'Manhã' : turno === 'INTER' ? 'Intermediário' : 'Tarde';
+
+  var container = document.getElementById('modal-dia-container');
+  container.innerHTML =
+    '<div class="modal-overlay" onclick="if(event.target===this) fecharModalDia()">' +
+      '<div class="modal-card">' +
+        '<button class="modal-fechar" onclick="fecharModalDia()">&times;</button>' +
+        '<h3>' + dataIso.split('-').reverse().join('/') + '</h3>' +
+        '<p class="modal-sub">' + linha.equipeNome + ' &middot; ' + turnoLabel + ' &middot; Titular: ' + linha.pessoaNome + '</p>' +
+        (ausencia
+          ? '<p><strong>Ausência:</strong> ' + ausencia.motivo + '</p>'
+          : '<p style="color:var(--verde-escuro)"><strong>Sem ausência registrada</strong> (titular presente)</p>') +
+        '<hr class="divisor">' +
+        '<h4 style="font-size:13px;margin-bottom:8px">Coberturas lançadas</h4>' +
+        '<div id="lista-coberturas">' + renderListaCoberturas(coberturas) + '</div>' +
+        (ausencia ? renderFormNovaCobertura(equipeId, turno, dataIso, ausencia) : '') +
+      '</div>' +
+    '</div>';
+}
+
+function renderListaCoberturas(coberturas) {
+  if (coberturas.length === 0) return '<p class="msg-vazio" style="padding:10px 0">Nenhuma cobertura lançada.</p>';
+  return coberturas.map(function (c) {
+    var tipoLabel = c.tipo === 'cobertura_ferista' ? 'Ferista' : c.tipo === 'cobertura_extra' ? 'Extra' : 'Compensação';
+    return '<div class="cobertura-item"><span>' + (c.pessoas ? c.pessoas.nome : '—') + ' &middot; ' + tipoLabel + '</span>' +
+      '<button class="btn-icon excluir" onclick="excluirCobertura(\'' + c.id + '\')">Excluir</button></div>';
+  }).join('');
+}
+
+function renderFormNovaCobertura(equipeId, turno, dataIso, ausencia) {
+  var extraPermitido = MOTIVOS_PERMITEM_EXTRA.indexOf(ausencia.motivo) !== -1;
+  return '<hr class="divisor">' +
+    '<h4 style="font-size:13px;margin-bottom:8px">Adicionar cobertura</h4>' +
+    '<div id="modal-form-erro"></div>' +
+    '<div class="form-field" style="position:relative">' +
+      '<label>Pessoa</label>' +
+      '<input id="modal-busca-pessoa" type="text" placeholder="Digite o nome..." oninput="onBuscaModalInput()" autocomplete="off">' +
+      '<div id="modal-sugestoes" class="busca-sugestoes" style="display:none"></div>' +
+    '</div>' +
+    '<div class="form-field">' +
+      '<label>Tipo de cobertura</label>' +
+      '<select id="modal-tipo">' +
+        '<option value="cobertura_ferista">Cobertura ferista</option>' +
+        (extraPermitido ? '<option value="cobertura_extra">Cobertura extra</option>' : '') +
+        '<option value="compensacao">Compensação</option>' +
+      '</select>' +
+      (!extraPermitido ? '<div class="aviso-ferista">Este motivo não autoriza plantão extra.</div>' : '') +
+    '</div>' +
+    '<button class="btn-primario" onclick="salvarCobertura(\'' + equipeId + '\',\'' + turno + '\',\'' + dataIso + '\')">Salvar cobertura</button>';
+}
+
+var modalPessoaSelecionadaId = null;
+
+function onBuscaModalInput() {
+  var termo = document.getElementById('modal-busca-pessoa').value.trim().toLowerCase();
+  var sugestoesEl = document.getElementById('modal-sugestoes');
+  modalPessoaSelecionadaId = null;
+  if (!termo) { sugestoesEl.style.display = 'none'; return; }
+
+  if (pessoasCache.length === 0) {
+    supabaseClient.from('pessoas').select('id, nome').eq('ativo', true).order('nome').then(function (res) {
+      pessoasCache = res.data || [];
+      onBuscaModalInput();
+    });
+    return;
+  }
+
+  var resultados = pessoasCache.filter(function (p) { return p.nome.toLowerCase().indexOf(termo) !== -1; }).slice(0, 8);
+  sugestoesEl.innerHTML = resultados.map(function (p) {
+    return '<div class="busca-sugestao-item" onclick="selecionarPessoaModal(\'' + p.id + '\',\'' + p.nome.replace(/'/g, "\\'") + '\')">' + p.nome + '</div>';
+  }).join('') || '<div class="busca-sugestao-item">Nenhuma pessoa encontrada</div>';
+  sugestoesEl.style.display = 'block';
+}
+
+function selecionarPessoaModal(id, nome) {
+  modalPessoaSelecionadaId = id;
+  document.getElementById('modal-busca-pessoa').value = nome;
+  document.getElementById('modal-sugestoes').style.display = 'none';
+}
+
+function salvarCobertura(equipeId, turno, dataIso) {
+  var erroEl = document.getElementById('modal-form-erro');
+  erroEl.innerHTML = '';
+  if (!modalPessoaSelecionadaId) { erroEl.innerHTML = '<p class="msg-erro">Selecione uma pessoa.</p>'; return; }
+  var tipo = document.getElementById('modal-tipo').value;
+
+  supabaseClient.from('alocacoes').insert({
+    equipe_id: equipeId, data: dataIso, turno: turno, pessoa_id: modalPessoaSelecionadaId, tipo: tipo
+  }).then(function (res) {
+    if (res.error) {
+      erroEl.innerHTML = '<p class="msg-erro">Erro: ' + res.error.message + '</p>';
+      return;
+    }
+    fecharModalDia();
+    carregarGrade();
+  });
+}
+
+function excluirCobertura(id) {
+  if (!confirm('Excluir esta cobertura?')) return;
+  supabaseClient.from('alocacoes').delete().eq('id', id).then(function (res) {
+    if (res.error) { alert('Erro: ' + res.error.message); return; }
+    fecharModalDia();
+    carregarGrade();
+  });
+}
+
+function fecharModalDia() {
+  document.getElementById('modal-dia-container').innerHTML = '';
+}
+
+authReady(initTela);
+</script>
+</body>
+</html>
