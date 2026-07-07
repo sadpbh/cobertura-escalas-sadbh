@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel · Cobertura de Escalas · SAD BH</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="auth.js"></script>
+<script src="nav.js"></script>
+<style>
+  .stats-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .stat-box { flex: 1; min-width: 130px; background: #fff; border: 1px solid var(--borda); border-radius: 12px; padding: 16px; text-align: center; }
+  .stat-box .num { font-size: 26px; font-weight: 700; color: var(--verde-escuro); }
+  .stat-box .label { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+  .item-linha { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--borda); font-size: 13px; }
+  .item-linha:last-child { border-bottom: none; }
+  .item-nome { font-weight: 600; }
+  .item-sub { color: var(--texto-suave); font-size: 12px; }
+  .tag-urgente { background: var(--erro-bg); color: var(--erro-texto); }
+  .tag-atencao { background: #fbf1d7; color: #a3831d; }
+  .tag-ok { background: #eaf3ee; color: var(--verde-escuro); }
+  .tag-pill { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>Painel</h1>
+    <div class="sub">Cobertura de Escalas &middot; SAD BH</div>
+  </div>
+  <div id="nav-menu"></div>
+  <div class="topbar-user">
+    <span id="user-label"></span>
+    <button class="btn-sair" onclick="authLogout()">Sair</button>
+  </div>
+</div>
+
+<div class="container" id="app" style="display:none">
+
+  <div class="card" id="card-restrito" style="display:none">
+    <p class="msg-erro">Esta tela é restrita ao perfil gestor.</p>
+  </div>
+
+  <div id="conteudo" style="display:none">
+
+    <div class="stats-row" id="stats-row" style="margin-bottom:20px"></div>
+
+    <div class="card">
+      <h2>Contratos vencendo nos próximos 90 dias (<span id="contador-contratos">0</span>)</h2>
+      <div id="lista-contratos"></div>
+      <div id="contratos-vazio" class="msg-vazio" style="display:none">Nenhum contrato vencendo nesse período.</div>
+    </div>
+
+    <div class="card">
+      <h2>Ausências de hoje (<span id="contador-ausencias-hoje">0</span>)</h2>
+      <div id="lista-ausencias-hoje"></div>
+      <div id="ausencias-hoje-vazio" class="msg-vazio" style="display:none">Nenhuma ausência registrada para hoje.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var CATEGORIA_LABEL = { medico: 'Médico', enfermeiro: 'Enfermeiro', tecnico_enfermagem: 'Técnico de Enfermagem' };
+
+function hojeIso() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function initTela() {
+  document.getElementById('app').style.display = 'block';
+  var acesso = window.meuAcesso;
+  var rotulo = acesso.equipe_nome || acesso.pessoa_nome || acesso.email;
+  document.getElementById('user-label').textContent = rotulo + ' (' + acesso.perfil + ')';
+  renderNav('painel');
+
+  if (acesso.perfil !== 'gestor') {
+    document.getElementById('card-restrito').style.display = 'block';
+    return;
+  }
+  document.getElementById('conteudo').style.display = 'block';
+
+  carregarStats();
+  carregarContratosVencendo();
+  carregarAusenciasHoje();
+}
+
+function carregarStats() {
+  supabaseClient.from('pessoas').select('categoria').eq('ativo', true).then(function (res) {
+    if (res.error) return;
+    var contagem = { medico: 0, enfermeiro: 0, tecnico_enfermagem: 0 };
+    (res.data || []).forEach(function (p) { contagem[p.categoria] = (contagem[p.categoria] || 0) + 1; });
+
+    document.getElementById('stats-row').innerHTML =
+      Object.keys(contagem).map(function (cat) {
+        return '<div class="stat-box"><div class="num">' + contagem[cat] + '</div><div class="label">' + CATEGORIA_LABEL[cat] + '</div></div>';
+      }).join('');
+  });
+}
+
+function carregarContratosVencendo() {
+  var hoje = hojeIso();
+  var limite = new Date();
+  limite.setDate(limite.getDate() + 90);
+  var limiteIso = limite.getFullYear() + '-' + String(limite.getMonth() + 1).padStart(2, '0') + '-' + String(limite.getDate()).padStart(2, '0');
+
+  supabaseClient
+    .from('contratos')
+    .select('id, bm_m, data_termino_contrato, pessoas(nome)')
+    .eq('tipo_contrato', 'contrato')
+    .not('data_termino_contrato', 'is', null)
+    .lte('data_termino_contrato', limiteIso)
+    .order('data_termino_contrato')
+    .then(function (res) {
+      if (res.error) return;
+      var lista = res.data || [];
+      document.getElementById('contador-contratos').textContent = lista.length;
+      var vazio = document.getElementById('contratos-vazio');
+      if (lista.length === 0) { vazio.style.display = 'block'; return; }
+      vazio.style.display = 'none';
+
+      document.getElementById('lista-contratos').innerHTML = lista.map(function (c) {
+        var dias = Math.ceil((new Date(c.data_termino_contrato) - new Date(hoje)) / 86400000);
+        var tag = dias <= 30 ? 'tag-urgente' : (dias <= 60 ? 'tag-atencao' : 'tag-ok');
+        return '<div class="item-linha">' +
+          '<span><span class="item-nome">' + (c.pessoas ? c.pessoas.nome : '—') + '</span> <span class="item-sub">BM/M ' + c.bm_m + '</span></span>' +
+          '<span class="tag-pill ' + tag + '">' + c.data_termino_contrato.split('-').reverse().join('/') + ' (' + dias + ' dias)</span>' +
+          '</div>';
+      }).join('');
+    });
+}
+
+function carregarAusenciasHoje() {
+  var hoje = hojeIso();
+  supabaseClient
+    .from('ausencias')
+    .select('id, motivo, turno, dias, pessoas(nome), equipes(nome)')
+    .then(function (res) {
+      if (res.error) return;
+      var lista = (res.data || []).filter(function (a) { return a.dias && a.dias.indexOf(hoje) !== -1; });
+      document.getElementById('contador-ausencias-hoje').textContent = lista.length;
+      var vazio = document.getElementById('ausencias-hoje-vazio');
+      if (lista.length === 0) { vazio.style.display = 'block'; return; }
+      vazio.style.display = 'none';
+
+      document.getElementById('lista-ausencias-hoje').innerHTML = lista.map(function (a) {
+        var turnoLabel = a.turno === 'MANHA' ? 'Manhã' : a.turno === 'INTER' ? 'Inter' : a.turno === 'TARDE' ? 'Tarde' : 'Dia inteiro';
+        return '<div class="item-linha">' +
+          '<span><span class="item-nome">' + (a.pessoas ? a.pessoas.nome : '—') + '</span> <span class="item-sub">' + (a.equipes ? a.equipes.nome : '—') + ' &middot; ' + turnoLabel + '</span></span>' +
+          '<span class="tag-pill tag-atencao">' + a.motivo + '</span>' +
+          '</div>';
+      }).join('');
+    });
+}
+
+authReady(initTela);
+</script>
+</body>
+</html>
