@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acessos · Cobertura de Escalas · SAD BH</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="auth.js"></script>
+<script src="nav.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>Acessos</h1>
+    <div class="sub">Cobertura de Escalas &middot; SAD BH</div>
+  </div>
+  <div id="nav-menu"></div>
+  <div class="topbar-user">
+    <span id="user-label"></span>
+    <button class="btn-sair" onclick="authLogout()">Sair</button>
+  </div>
+</div>
+
+<div class="container" id="app" style="display:none">
+
+  <div class="card" id="card-restrito" style="display:none">
+    <p class="msg-erro">Esta tela é restrita ao perfil gestor.</p>
+  </div>
+
+  <div id="conteudo-gestor" style="display:none">
+
+    <div class="card">
+      <h2>Novo acesso</h2>
+      <div id="form-erro"></div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>E-mail</label>
+          <input id="f-email" type="email" placeholder="pessoa@pbh.gov.br">
+        </div>
+        <div class="form-field">
+          <label>Perfil</label>
+          <select id="f-perfil">
+            <option value="gestor">Gestor</option>
+            <option value="equipe">Equipe</option>
+            <option value="pessoa">Pessoa</option>
+          </select>
+        </div>
+        <div class="form-field" id="campo-equipe" style="display:none">
+          <label>Equipe</label>
+          <select id="f-equipe"></select>
+        </div>
+        <div class="form-field" id="campo-pessoa" style="display:none">
+          <label>Pessoa</label>
+          <select id="f-pessoa"></select>
+        </div>
+      </div>
+      <button class="btn-primario" onclick="salvarAcesso()">Adicionar acesso</button>
+    </div>
+
+    <div class="card">
+      <h2>Acessos cadastrados</h2>
+      <table id="tabela-acessos">
+        <thead>
+          <tr><th>E-mail</th><th>Perfil</th><th>Referência</th><th></th></tr>
+        </thead>
+        <tbody id="tabela-acessos-body"></tbody>
+      </table>
+      <div id="tabela-vazio" class="msg-vazio" style="display:none">Nenhum acesso cadastrado ainda.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var equipesCache = [];
+var pessoasCache = [];
+
+function initTela() {
+  document.getElementById('app').style.display = 'block';
+  var acesso = window.meuAcesso;
+  var rotulo = acesso.equipe_nome || acesso.pessoa_nome || acesso.email;
+  document.getElementById('user-label').textContent = rotulo + ' (' + acesso.perfil + ')';
+  renderNav('acessos');
+
+  if (window.meuAcesso.perfil !== 'gestor') {
+    document.getElementById('card-restrito').style.display = 'block';
+    return;
+  }
+  document.getElementById('conteudo-gestor').style.display = 'block';
+
+  document.getElementById('f-perfil').addEventListener('change', atualizarCampoReferencia);
+  atualizarCampoReferencia();
+
+  carregarEquipesEPessoas().then(function () {
+    carregarAcessos();
+  });
+}
+
+function atualizarCampoReferencia() {
+  var perfil = document.getElementById('f-perfil').value;
+  document.getElementById('campo-equipe').style.display = perfil === 'equipe' ? 'block' : 'none';
+  document.getElementById('campo-pessoa').style.display = perfil === 'pessoa' ? 'block' : 'none';
+}
+
+function carregarEquipesEPessoas() {
+  return Promise.all([
+    supabaseClient.from('equipes').select('id, nome').order('nome'),
+    supabaseClient.from('pessoas').select('id, nome').order('nome')
+  ]).then(function (results) {
+    equipesCache = results[0].data || [];
+    pessoasCache = results[1].data || [];
+
+    var selEquipe = document.getElementById('f-equipe');
+    selEquipe.innerHTML = equipesCache.map(function (e) {
+      return '<option value="' + e.id + '">' + e.nome + '</option>';
+    }).join('');
+
+    var selPessoa = document.getElementById('f-pessoa');
+    selPessoa.innerHTML = pessoasCache.map(function (p) {
+      return '<option value="' + p.id + '">' + p.nome + '</option>';
+    }).join('');
+  });
+}
+
+function carregarAcessos() {
+  supabaseClient
+    .from('acessos')
+    .select('id, email, perfil, equipe_id, pessoa_id, equipes(nome), pessoas(nome)')
+    .order('email')
+    .then(function (res) {
+      if (res.error) {
+        document.getElementById('form-erro').innerHTML =
+          '<p class="msg-erro">Erro ao carregar acessos: ' + res.error.message + '</p>';
+        return;
+      }
+      renderTabela(res.data || []);
+    });
+}
+
+function renderTabela(linhas) {
+  var body = document.getElementById('tabela-acessos-body');
+  var vazio = document.getElementById('tabela-vazio');
+
+  if (linhas.length === 0) {
+    body.innerHTML = '';
+    vazio.style.display = 'block';
+    return;
+  }
+  vazio.style.display = 'none';
+
+  body.innerHTML = linhas.map(function (l) {
+    var ref = '—';
+    if (l.perfil === 'equipe' && l.equipes) ref = l.equipes.nome;
+    if (l.perfil === 'pessoa' && l.pessoas) ref = l.pessoas.nome;
+    return (
+      '<tr>' +
+        '<td>' + l.email + '</td>' +
+        '<td><span class="badge badge-' + l.perfil + '">' + l.perfil + '</span></td>' +
+        '<td>' + ref + '</td>' +
+        '<td><button class="btn-icon excluir" onclick="excluirAcesso(\'' + l.id + '\')">Excluir</button></td>' +
+      '</tr>'
+    );
+  }).join('');
+}
+
+function salvarAcesso() {
+  var email = document.getElementById('f-email').value.trim();
+  var perfil = document.getElementById('f-perfil').value;
+  var erroEl = document.getElementById('form-erro');
+  erroEl.innerHTML = '';
+
+  if (!email) {
+    erroEl.innerHTML = '<p class="msg-erro">Informe o e-mail.</p>';
+    return;
+  }
+
+  var payload = { email: email, perfil: perfil, equipe_id: null, pessoa_id: null };
+  if (perfil === 'equipe') {
+    payload.equipe_id = document.getElementById('f-equipe').value;
+  }
+  if (perfil === 'pessoa') {
+    payload.pessoa_id = document.getElementById('f-pessoa').value;
+  }
+
+  supabaseClient.from('acessos').insert(payload).then(function (res) {
+    if (res.error) {
+      erroEl.innerHTML = '<p class="msg-erro">Erro ao salvar: ' + res.error.message + '</p>';
+      return;
+    }
+    document.getElementById('f-email').value = '';
+    carregarAcessos();
+  });
+}
+
+function excluirAcesso(id) {
+  if (!confirm('Remover este acesso?')) return;
+  supabaseClient.from('acessos').delete().eq('id', id).then(function (res) {
+    if (res.error) {
+      alert('Erro ao excluir: ' + res.error.message);
+      return;
+    }
+    carregarAcessos();
+  });
+}
+
+authReady(initTela);
+</script>
+</body>
+</html>
