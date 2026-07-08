@@ -241,9 +241,16 @@ function renderGrade() {
     html += '<tr><td colspan="' + (3 + diasDoMes.length) + '" class="msg-vazio">Nenhum registro para essa categoria/equipe.</td></tr>';
   }
 
-  linhas.forEach(function (l) {
-    html += '<tr>' +
-      '<td class="col-fixa">' + l.equipeNome + '</td>' +
+  linhas.forEach(function (l, idx) {
+    var novoGrupo = idx === 0 || linhas[idx - 1].equipeNome !== l.equipeNome;
+    var qtdNoGrupo = linhas.filter(function (x) { return x.equipeNome === l.equipeNome; }).length;
+    var nomeExibido = l.equipeNome.replace(/^EMAD\s+/i, '');
+
+    html += '<tr' + (novoGrupo ? ' class="linha-novo-grupo"' : '') + '>';
+    if (novoGrupo) {
+      html += '<td class="col-fixa" rowspan="' + qtdNoGrupo + '">' + nomeExibido + '</td>';
+    }
+    html +=
       '<td class="col-fixa col-fixa2">' + (l.turno === 'MANHA' ? 'Manhã' : l.turno === 'INTER' ? 'Inter' : 'Tarde') + '</td>' +
       '<td class="col-fixa col-fixa3">' + l.pessoaNome + '</td>';
 
@@ -262,7 +269,7 @@ function renderGrade() {
         tituloTip = ausencia.motivo;
       } else {
         info = CODIGO_NORMAL;
-        codigo = 'C';
+        codigo = '<span class="ponto-normal"></span>';
         tituloTip = 'Cobertura normal (sem ausência)';
       }
 
