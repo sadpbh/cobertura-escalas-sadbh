@@ -6,8 +6,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --verde: #2e7d4f;
-  --verde-escuro: #1f5c38;
+  --verde: #16a34a;
+  --verde-escuro: #0d7a37;
   --bg: #f4f6f9;
   --texto: #1b2438;
   --texto-suave: #6b7a96;
@@ -68,7 +68,7 @@ body {
   padding: 7px 14px; border-radius: 8px;
 }
 .nav-link:hover { background: var(--bg); color: var(--texto); }
-.nav-link-ativo { background: #eaf3ee; color: var(--verde-escuro); }
+.nav-link-ativo { background: #c8f4da; color: var(--verde-escuro); }
 
 .container { max-width: 980px; margin: 0 auto; padding: 24px; }
 
@@ -103,7 +103,7 @@ tr:last-child td { border-bottom: none; }
 .badge {
   display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
 }
-.badge-gestor { background: #eaf3ee; color: var(--verde-escuro); }
+.badge-gestor { background: #c8f4da; color: var(--verde-escuro); }
 .badge-equipe { background: #eaf1fb; color: #1d5fa8; }
 .badge-pessoa { background: #f5efe0; color: #8a6d1d; }
 .btn-icon {
@@ -126,7 +126,7 @@ tr:last-child td { border-bottom: none; }
 .tag-pill { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
 .tag-urgente { background: var(--erro-bg); color: var(--erro-texto); }
 .tag-atencao { background: #fbf1d7; color: #a3831d; }
-.tag-ok { background: #eaf3ee; color: var(--verde-escuro); }
+.tag-ok { background: #c8f4da; color: var(--verde-escuro); }
 
 /* ---------- Pessoas: linhas expansíveis ---------- */
 .linha-pessoa { cursor: pointer; }
@@ -143,9 +143,9 @@ tr:last-child td { border-bottom: none; }
 .dia-chip {
   font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--bg); color: var(--texto-suave); font-weight: 600;
 }
-.dia-chip.ativo-dia { background: #eaf3ee; color: var(--verde-escuro); }
+.dia-chip.ativo-dia { background: #c8f4da; color: var(--verde-escuro); }
 .toggle-ativo { cursor: pointer; }
-.badge-ativo { background: #eaf3ee; color: var(--verde-escuro); }
+.badge-ativo { background: #c8f4da; color: var(--verde-escuro); }
 .badge-inativo { background: #f1f2f5; color: var(--texto-suave); }
 
 .checkbox-dias { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
@@ -167,7 +167,7 @@ table.grade th.col-fixa3, table.grade td.col-fixa3 { left: 230px; }
 table.grade th { background: #fafbfc; font-size: 10px; padding: 3px 2px; }
 .dia-cel { width: 26px; height: 30px; cursor: pointer; font-weight: 700; position: relative; }
 .dia-cel:hover { outline: 2px solid var(--verde); outline-offset: -2px; }
-.ponto-normal { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2e7d4f; }
+.ponto-normal { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
 tr.linha-novo-grupo td { border-top: 2px solid #c3cad6; }
 .marcador-gap { position: absolute; top: 1px; right: 1px; width: 6px; height: 6px; border-radius: 50%; background: var(--erro-texto); }
 .marcador-ok { position: absolute; top: 1px; right: 1px; width: 6px; height: 6px; border-radius: 50%; background: var(--verde); }
