@@ -14,6 +14,7 @@ function renderNav(paginaAtiva) {
   var itensPorPerfil = {
     gestor: [
       { chave: 'painel', label: 'Painel', href: 'painel.html' },
+      { chave: 'equipes', label: 'Equipes', href: 'equipes.html' },
       { chave: 'acessos', label: 'Acessos', href: 'acessos.html' },
       { chave: 'pessoas', label: 'Pessoas', href: 'pessoas.html' },
       { chave: 'ausencias', label: 'Ausências', href: 'ausencias.html' },
