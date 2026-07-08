@@ -18,7 +18,8 @@ function renderNav(paginaAtiva) {
       { chave: 'acessos', label: 'Acessos', href: 'acessos.html' },
       { chave: 'pessoas', label: 'Pessoas', href: 'pessoas.html' },
       { chave: 'ausencias', label: 'Ausências', href: 'ausencias.html' },
-      { chave: 'escala', label: 'Escala', href: 'escala.html' }
+      { chave: 'escala', label: 'Escala', href: 'escala.html' },
+      { chave: 'ocorrencias', label: 'Ocorrências', href: 'ocorrencias.html' }
     ],
     equipe: [
       { chave: 'ausencias', label: 'Ausências', href: 'ausencias.html' },
