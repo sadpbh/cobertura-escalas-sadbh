@@ -158,6 +158,8 @@ table.grade th.col-fixa3, table.grade td.col-fixa3 { left: 230px; }
 table.grade th { background: #fafbfc; font-size: 10px; padding: 3px 2px; }
 .dia-cel { width: 26px; height: 30px; cursor: pointer; font-weight: 700; position: relative; }
 .dia-cel:hover { outline: 2px solid var(--verde); outline-offset: -2px; }
+.ponto-normal { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2e7d4f; }
+tr.linha-novo-grupo td { border-top: 2px solid #c3cad6; }
 .marcador-gap { position: absolute; top: 1px; right: 1px; width: 6px; height: 6px; border-radius: 50%; background: var(--erro-texto); }
 .marcador-ok { position: absolute; top: 1px; right: 1px; width: 6px; height: 6px; border-radius: 50%; background: var(--verde); }
 .legenda { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
