@@ -164,7 +164,8 @@ table.grade th.col-fixa, table.grade td.col-fixa {
 }
 table.grade th.col-fixa2, table.grade td.col-fixa2 { left: 130px; }
 table.grade th.col-fixa3, table.grade td.col-fixa3 { left: 230px; }
-table.grade th { background: #fafbfc; font-size: 10px; padding: 3px 2px; }
+table.grade th { background: #fafbfc; font-size: 10px; padding: 3px 2px; position: sticky; top: 0; z-index: 8; }
+table.grade thead th.col-fixa { z-index: 15; }
 .dia-cel { width: 26px; height: 30px; cursor: pointer; font-weight: 700; position: relative; }
 .dia-cel:hover { outline: 2px solid var(--verde); outline-offset: -2px; }
 .ponto-normal { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
