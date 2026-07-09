@@ -301,11 +301,11 @@ function renderGrade() {
 
     html += '<tr' + (novoGrupo ? ' class="linha-novo-grupo"' : '') + '>';
     if (novoGrupo) {
-      html += '<td class="col-fixa" rowspan="' + qtdNoGrupo + '">' + nomeExibido + '</td>';
+      html += '<td class="col-fixa" title="' + nomeExibido + '" rowspan="' + qtdNoGrupo + '">' + nomeExibido + '</td>';
     }
     html +=
       '<td class="col-fixa col-fixa2">' + (l.turno === 'MANHA' ? 'Manhã' : l.turno === 'INTER' ? 'Inter' : 'Tarde') + '</td>' +
-      '<td class="col-fixa col-fixa3">' + (l.pessoaAtiva ? l.pessoaNome : '<em style="color:var(--texto-suave)">(Vaga) ' + l.pessoaNome + '</em>') + '</td>';
+      '<td class="col-fixa col-fixa3" title="' + (l.pessoaAtiva ? l.pessoaNome : 'Vaga') + '">' + (l.pessoaAtiva ? l.pessoaNome : '<em style="color:var(--texto-suave)">(Vaga)</em>') + '</td>';
 
     diasDoMes.forEach(function (d) {
       var fimDeSemana = (d.dow === 0 || d.dow === 6);
@@ -379,7 +379,8 @@ function abrirModalDia(equipeId, turno, dataIso, pessoaIdTitular) {
   } else if (foraDaBase) {
     statusHtml = '<p style="color:var(--texto-suave)">Esta pessoa não atua nesta base neste dia da semana.</p>';
   } else if (ausencia) {
-    statusHtml = '<p><strong>Ausência:</strong> ' + ausencia.motivo + '</p>';
+    statusHtml = '<p><strong>Ausência:</strong> ' + ausencia.motivo + ' ' +
+      '<button class="btn-icon excluir" onclick="excluirAusenciaDaCelula(\'' + ausencia.id + '\')">Excluir ausência</button></p>';
   } else {
     statusHtml = '<p style="color:var(--verde-escuro)"><strong>Sem ausência registrada</strong> (titular presente)</p>';
   }
@@ -392,7 +393,7 @@ function abrirModalDia(equipeId, turno, dataIso, pessoaIdTitular) {
       '<div class="modal-card">' +
         '<button class="modal-fechar" onclick="fecharModalDia()">&times;</button>' +
         '<h3>' + dataIso.split('-').reverse().join('/') + '</h3>' +
-        '<p class="modal-sub">' + linha.equipeNome + ' &middot; ' + turnoLabel + ' &middot; Titular: ' + linha.pessoaNome + '</p>' +
+        '<p class="modal-sub">' + linha.equipeNome + ' &middot; ' + turnoLabel + ' &middot; ' + (linha.pessoaAtiva ? 'Titular: ' + linha.pessoaNome : 'Vaga (sem profissional)') + '</p>' +
         statusHtml +
         (podeRegistrarAusencia ? renderFormAusenciaRapida(equipeId, turno, dataIso, pessoaIdTitular) : '') +
         (precisaCobertura ? (
@@ -426,6 +427,21 @@ function renderFormAusenciaRapida(equipeId, turno, dataIso, pessoaId) {
       '</select>' +
     '</div>' +
     '<button class="btn-primario" onclick="salvarAusenciaRapida(\'' + equipeId + '\',\'' + turno + '\',\'' + dataIso + '\',\'' + pessoaId + '\')">Registrar</button>';
+}
+
+function excluirAusenciaDaCelula(ausenciaId) {
+  var a = ausenciasMes.find(function (x) { return x.id === ausenciaId; });
+  var aviso = 'Excluir esta ausência?';
+  if (a && a.dias && a.dias.length > 1) {
+    aviso = 'Esta ausência abrange ' + a.dias.length + ' dias (' + a.dias[0].split('-').reverse().join('/') +
+      ' a ' + a.dias[a.dias.length - 1].split('-').reverse().join('/') + '). Excluir vai remover TODOS os dias, não só este. Confirma?';
+  }
+  if (!confirm(aviso)) return;
+  supabaseClient.from('ausencias').delete().eq('id', ausenciaId).then(function (res) {
+    if (res.error) { alert('Erro: ' + res.error.message); return; }
+    fecharModalDia();
+    carregarGrade();
+  });
 }
 
 function salvarAusenciaRapida(equipeId, turno, dataIso, pessoaId) {
