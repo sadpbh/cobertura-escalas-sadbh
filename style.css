@@ -157,7 +157,9 @@ tr:last-child td { border-bottom: none; }
 
 /* ---------- Grade de escala ---------- */
 .grade-wrap { overflow: auto; max-height: 65vh; border: 1px solid var(--borda); border-radius: 8px; }
-table.grade { border-collapse: separate; border-spacing: 0; font-size: 11px; white-space: nowrap; }
+table.grade { border-collapse: separate; border-spacing: 0; font-size: 11px; white-space: nowrap; table-layout: fixed; }
+table.grade thead tr:nth-child(2) th:not(.col-fixa) { width: 28px; top: 21px; }
+table.grade th.col-mes { position: sticky; top: 0; z-index: 8; background: #eef1f5; font-size: 10px; font-weight: 700; text-align: center; height: 20px; padding: 3px 2px; }
 table.grade th, table.grade td { border: 1px solid var(--borda); padding: 0; text-align: center; }
 table.grade th.col-fixa, table.grade td.col-fixa {
   position: sticky; left: 0; background: #fff; text-align: left; padding: 4px 8px; z-index: 5;
